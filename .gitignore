@@ -1,0 +1,94 @@
+# ============================================================
+#  UNITY + VISUAL STUDIO GITIGNORE
+# ============================================================
+
+# === Unity generated folders ===
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+Assets/AssetStoreTools*
+sysinfo.txt
+
+# === Unity cache ===
+*.pidb
+*.pdb
+*.mdb
+*.tmp
+*.bak
+*.svd
+*.opendb
+*.VC.db
+*.suo
+*.user
+*.userprefs
+*.csproj
+*.unityproj
+*.sln
+
+# === IDE folders ===
+.vs/
+.vscode/
+.idea/
+
+# === Build artifacts ===
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+*.dll
+*.zip
+*.tar.gz
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# === Crash Reports ===
+*.stacktrace
+*.dmp
+
+# === Temporary asset imports ===
+*.blend1
+*.blend2
+*.psd.meta
+*.tga.meta
+
+# === Logs ===
+*.log
+
+# === Collaborate cache ===
+.collab/
+
+# === JetBrains Rider ===
+.idea/
+*.sln.iml
+
+# === Visual Studio ===
+*.dbmdl
+*.cache
+*.aps
+*.sdf
+*.VC.db
+*.ipch
+*.aps
+*.idb
+*.ilk
+*.obj
+*.pch
+*.res
+
+# === Others ===
+/Temp/
+/obj/
+/Builds/
+/Logs/
+/Packages/com.unity.collab-proxy/
