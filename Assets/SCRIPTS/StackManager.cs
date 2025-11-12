@@ -44,9 +44,14 @@ public class StackManager : MonoBehaviour
 
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
     {
-        yield return null; // wait 1 frame for physics to settle
+        yield return null; // Wait one frame for physics to settle
 
         bool success = false;
+        bool isPerfectPlacement = false;
+
+        var rb = stone.GetComponent<Rigidbody2D>();
+        if (rb == null)
+            yield break;
 
         // === FIRST STONE (check platform contact) ===
         if (stack.Count == 0)
@@ -56,12 +61,10 @@ public class StackManager : MonoBehaviour
 
             foreach (var c in hits)
             {
-                if (c.gameObject == stone) continue; // ignore self
+                if (c.gameObject == stone) continue;
                 if (c.CompareTag("Platform"))
                 {
                     float yDiff = Mathf.Abs(c.transform.position.y - stone.transform.position.y);
-                    Debug.Log($"Platform hit detected: Δy={yDiff}");
-
                     if (yDiff < allowedYError + 1f)
                     {
                         success = true;
@@ -72,10 +75,6 @@ public class StackManager : MonoBehaviour
 
             if (success)
             {
-                Debug.Log("✅ First stone landed correctly");
-                stack.Add(stone);
-
-                // Snap stone perfectly onto the platform
                 var platform = hits.FirstOrDefault(h => h.CompareTag("Platform"));
                 if (platform)
                 {
@@ -84,19 +83,18 @@ public class StackManager : MonoBehaviour
                     stone.transform.position = alignedPos;
                 }
 
+                stack.Add(stone);
                 GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
             }
             else
             {
-                Debug.Log("❌ Missed platform — game over");
                 GameManager.Instance?.OnMiss(stone);
             }
         }
         else
         {
-            // === SUBSEQUENT STONES (check alignment with top stone) ===
+            // === SUBSEQUENT STONES (check alignment with previous stone) ===
             var top = stack[stack.Count - 1];
-
             float dx = Mathf.Abs(stone.transform.position.x - top.transform.position.x);
             float dy = stone.transform.position.y - top.transform.position.y;
 
@@ -108,39 +106,46 @@ public class StackManager : MonoBehaviour
 
             if (horizontallyAligned && verticallyOnTop)
             {
-                Debug.Log("✅ Good placement on stack");
                 success = true;
 
-                // Snap perfectly on top of previous stone
+                // === Bonus check: "Perfect Placement" ===
+                float perfectThreshold = cubeWidth * 0.1f; // 10% of width considered "perfect"
+                if (dx <= perfectThreshold)
+                    isPerfectPlacement = true;
+
+                // Snap perfectly on top
                 Vector3 alignedPos = stone.transform.position;
                 alignedPos.x = top.transform.position.x;
                 alignedPos.y = top.transform.position.y + cubeHeight;
                 stone.transform.position = alignedPos;
 
                 stack.Add(stone);
-                GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
+
+                if (isPerfectPlacement)
+                {
+                    GameManager.Instance?.OnPerfectPlacement(stack.Count, stone);
+                    StartCoroutine(PopStoneEffect(stone)); // 💥 POP effect
+                }
+                else
+                {
+                    GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
+                }
             }
             else
             {
-                Debug.Log($"❌ Missed stack alignment — dx={dx:F2}, dy={dy:F2}");
                 GameManager.Instance?.OnMiss(stone);
             }
         }
 
-        if (success)
+        // === Stop physics after placement ===
+        if (success && rb.bodyType != RigidbodyType2D.Static)
         {
-            // stop stone physics to keep it fixed in place
-            var rb = stone.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                if (rb.bodyType != RigidbodyType2D.Static)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                    rb.angularVelocity = 0f;
-                }
-            }
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.bodyType = RigidbodyType2D.Static; // Prevent further movement
         }
     }
+
 
     public IEnumerator CheckMissWhileFalling(GameObject stone)
     {
@@ -163,6 +168,8 @@ public class StackManager : MonoBehaviour
         }
     }
 
+
+
     public int GetStackCount() => stack.Count;
 
     /// <summary>
@@ -175,5 +182,35 @@ public class StackManager : MonoBehaviour
             if (s) Destroy(s);
         }
         stack.Clear();
+    }
+
+
+    private IEnumerator PopStoneEffect(GameObject stone)
+    {
+        if (stone == null) yield break;
+
+        Vector3 originalScale = stone.transform.localScale;
+        Vector3 popScale = originalScale * 1.2f; // Slightly larger
+        float duration = 0.15f;
+        float t = 0f;
+
+        // Scale up
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            stone.transform.localScale = Vector3.Lerp(originalScale, popScale, t / duration);
+            yield return null;
+        }
+
+        // Scale back down
+        t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            stone.transform.localScale = Vector3.Lerp(popScale, originalScale, t / duration);
+            yield return null;
+        }
+
+        stone.transform.localScale = originalScale;
     }
 }

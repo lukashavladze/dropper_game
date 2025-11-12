@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class GameManager : MonoBehaviour
@@ -9,6 +10,7 @@ public class GameManager : MonoBehaviour
     public DropperController dropper;
     public BackgroundManager backgroundManager;
     public UIManager uiManager;
+    public GameObject perfectPlacementEffect;
 
     // newly added
     public Transform dropperTransform; // assign to inspector
@@ -37,7 +39,7 @@ public class GameManager : MonoBehaviour
 
     public void OnDrop()
     {
-        // called when player drops � can add sound or analytics
+        // called when player drops — can add sound or analytics
     }
 
 
@@ -65,7 +67,7 @@ public class GameManager : MonoBehaviour
     public void OnPlacedSuccessful(int placedCount, GameObject stone)
     {
         // Increase score
-        score += 10;
+        score += 1;
         uiManager.UpdateScore(score);
 
         // Move dropper upward (camera will follow automatically)
@@ -98,11 +100,37 @@ public class GameManager : MonoBehaviour
             //}
         }
     }
+
+    public void OnPerfectPlacement(int level, GameObject stone)
+    {
+        // Bonus logic
+        AddScore(10);
+
+        // Particle effect
+        if (perfectPlacementEffect != null)
+        {
+            Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
+            GameObject fx = Instantiate(perfectPlacementEffect, pos, Quaternion.identity);
+            Vector3 pos1 = dropperTransform.position;
+            pos1.y += verticalStep;
+            dropperTransform.position = pos1;
+            Destroy(fx, 2f); // auto-remove after 2 seconds
+        }
+
+        Debug.Log("🌟 PERFECT PLACEMENT! Bonus +10 points");
+    }
+
     // to dynamically increase lvl
     int GetPlacedToLevelUp()
     {
         // Each level reduces the required blocks slightly (never below 3)
         return Mathf.Max(3, basePlacedToLevelUp - (level / 2));
+    }
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+        uiManager.UpdateScore(score);
     }
 
 

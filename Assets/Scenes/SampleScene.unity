@@ -1290,6 +1290,7 @@ MonoBehaviour:
   dropper: {fileID: 1995515931}
   backgroundManager: {fileID: 1972425916}
   uiManager: {fileID: 1069174847}
+  perfectPlacementEffect: {fileID: 487980723374170278, guid: dd11ff0d83ee69444886059038243b66, type: 3}
   dropperTransform: {fileID: 1995515930}
   verticalStep: 1
   score: 0
@@ -1297,6 +1298,7 @@ MonoBehaviour:
   basePlacedToLevelUp: 5
   speedIncreasePerLevel: 0.6
   placedToLevelUp: 5
+  isGameOver: 0
 --- !u!4 &1626557067
 Transform:
   m_ObjectHideFlags: 0
