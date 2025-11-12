@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 
@@ -14,6 +14,8 @@ public class FallingObject : MonoBehaviour
 
     public event Action<GameObject> OnPlaced;
 
+    public float baseGravityScale = 1f;
+    public float gravityIncreasePerLevel = 0.5f;
 
     void Awake()
     {
@@ -21,6 +23,19 @@ public class FallingObject : MonoBehaviour
         rb.simulated = false; // start off non-simulated until dropped
     }
 
+
+    public void UpdateGravity(int level)
+    {
+        if (rb == null) return;
+
+        // Base gravity scale and multiplier per level
+        float baseGravity = 1.5f;
+        float gravityIncreasePerLevel = 1.0f;
+
+        rb.gravityScale = baseGravity + (level - 1) * gravityIncreasePerLevel;
+
+        Debug.Log($"[FallingObject] Gravity updated → Level {level}, gravityScale = {rb.gravityScale}");
+    }
 
     void FixedUpdate()
     {

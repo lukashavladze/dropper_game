@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class DropperController : MonoBehaviour
@@ -7,6 +7,9 @@ public class DropperController : MonoBehaviour
     public Transform spawnPoint; // where stones are created
     public float speed = 3f; // horizontal movement speed
     public float leftX = -5f, rightX = 5f; // bounds
+    public float speedIncreasePerLevel = 1.5f;
+    public float moveSpeed = 5f;
+    public float baseSpeed = 5f;
 
 
     private GameObject currentStone;
@@ -21,6 +24,7 @@ public class DropperController : MonoBehaviour
 
     void Update()
     {
+
         Move();
         if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
         {
@@ -28,10 +32,18 @@ public class DropperController : MonoBehaviour
         }
     }
 
+    public void UpdateSpeed(int level)
+    {
+        moveSpeed = baseSpeed + (level - 1) * speedIncreasePerLevel;
+        Debug.Log($"Dropper speed updated to {moveSpeed} at level {level}");
+    }
+
 
     void Move()
     {
-        transform.position += Vector3.right * direction * speed * Time.deltaTime;
+        float move = moveSpeed * Time.deltaTime;
+        //transform.position += Vector3.right * direction * speed * Time.deltaTime;
+        transform.position += Vector3.right * direction * move;
         if (transform.position.x > rightX) { direction = -1; }
         if (transform.position.x < leftX) { direction = 1; }
         if (currentStone) // follow dropper

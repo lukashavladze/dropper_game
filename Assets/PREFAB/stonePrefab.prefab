@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6979596395478446015}
   m_Layer: 0
   m_Name: stonePrefab
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -177,3 +177,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sleepVelocityThreshold: 0.05
   settleTime: 0.25
+  baseGravityScale: 1
+  gravityIncreasePerLevel: 0.2
