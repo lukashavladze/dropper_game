@@ -24,6 +24,8 @@ public class DropperController : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+            return; // stop all dropper behavior
 
         Move();
         if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
@@ -64,14 +66,17 @@ public class DropperController : MonoBehaviour
     void DropCurrent()
     {
         if (!currentStone) return;
-        var rb = currentStone.GetComponent<Rigidbody2D>();
+        GameObject fallingStone = currentStone;
+        var rb = fallingStone.GetComponent<Rigidbody2D>();
+        //var rb = currentStone.GetComponent<Rigidbody2D>();
         rb.simulated = true;
         // detach so next spawn won't move it
         currentStone.transform.parent = null;
-        currentStone = null;
+        //currentStone = null;
         // spawn immediate replacement so it moves while previous falls
         SpawnStone();
         GameManager.Instance.OnDrop();
+        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(currentStone));
     }
 
 

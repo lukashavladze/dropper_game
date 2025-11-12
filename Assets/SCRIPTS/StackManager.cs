@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using System;
 
 public class StackManager : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class StackManager : MonoBehaviour
     public float allowedYError = 0.4f;   // Y distance tolerance from platform for first stone
     public float overlapRadius = 1.0f;   // radius used to detect platform contact
 
+    private float platformY;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -22,6 +25,13 @@ public class StackManager : MonoBehaviour
             return;
         }
         Instance = this;
+    }
+
+    void Start()
+    {
+        var platform = GameObject.FindGameObjectWithTag("Platform");
+        if (platform)
+            platformY = platform.transform.position.y;
     }
 
     /// <summary>
@@ -121,12 +131,35 @@ public class StackManager : MonoBehaviour
         {
             // stop stone physics to keep it fixed in place
             var rb = stone.GetComponent<Rigidbody2D>();
-            if (rb)
+            if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
-                rb.angularVelocity = 0f;
-                rb.bodyType = RigidbodyType2D.Kinematic;
+                if (rb.bodyType != RigidbodyType2D.Static)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+                }
             }
+        }
+    }
+
+    public IEnumerator CheckMissWhileFalling(GameObject stone)
+    {
+        // If this is the very first stone, compare with the platform height
+        float referenceY = (stack.Count == 0)
+        ? platformY // you can set this to your platform’s Y in Start()
+            : stack[stack.Count - 1].transform.position.y;
+
+        // Keep checking until game over or stone stops
+        while (stone != null)
+        {
+            if (stone.transform.position.y < referenceY - 1f) // 1f = tolerance below last stone
+            {
+                Debug.Log("❌ Stone fell below stack — instant game over");
+                GameManager.Instance?.OnMiss(stone);
+                yield break; // stop checking further
+            }
+
+            yield return null;
         }
     }
 

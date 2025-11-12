@@ -48,7 +48,16 @@ public class FallingObject : MonoBehaviour
                 if (_timer >= settleTime)
                 {
                     placed = true;
-                    rb.bodyType = RigidbodyType2D.Static; // freeze in place
+                    RigidbodyType2D prevType = rb.bodyType;
+
+                    if (prevType == RigidbodyType2D.Dynamic || prevType == RigidbodyType2D.Kinematic)
+                    {
+                        Vector2 stopVel = Vector2.zero;
+                        rb.linearVelocity = stopVel;
+                        rb.angularVelocity = 0f;
+                    }
+                    //Now freeze — no more velocity changes after this
+                    rb.bodyType = RigidbodyType2D.Static;
                     OnPlaced?.Invoke(gameObject);
                 }
             }

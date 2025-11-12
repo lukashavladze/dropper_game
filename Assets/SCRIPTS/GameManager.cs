@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
 
     public float speedIncreasePerLevel = 0.6f;
     public int placedToLevelUp = 5;
+    public bool isGameOver = false;
 
 
     void Awake() { Instance = this; }
@@ -40,11 +41,25 @@ public class GameManager : MonoBehaviour
     }
 
 
+    //public void OnMiss(GameObject stone)
+    //{
+    //    // miss: end run (or subtract life). For simplicity: end game
+    //    Destroy(stone);
+    //    uiManager.ShowGameOver();
+    //}
+
     public void OnMiss(GameObject stone)
     {
-        // miss: end run (or subtract life). For simplicity: end game
-        Destroy(stone);
+        if (isGameOver) return; // prevent multiple triggers
+
+        isGameOver = true;
         uiManager.ShowGameOver();
+
+        // Optional: freeze all stones
+        foreach (var rb in Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None))
+        {
+            rb.simulated = false;
+        }
     }
 
     public void OnPlacedSuccessful(int placedCount, GameObject stone)
@@ -94,6 +109,7 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
+        isGameOver = false;
         score = 0;
         level = 1;
         uiManager.UpdateScore(score);
