@@ -111,6 +111,7 @@ public class GameManager : MonoBehaviour
         {
             Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
             GameObject fx = Instantiate(perfectPlacementEffect, pos, Quaternion.identity);
+            // dropper to follow upwards after perfect placement
             Vector3 pos1 = dropperTransform.position;
             pos1.y += verticalStep;
             dropperTransform.position = pos1;
