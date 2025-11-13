@@ -9,22 +9,24 @@ public class PauseManager : MonoBehaviour
     public Button resumeButton;
     public Button exitButton;
 
-    private bool isPaused = false;
+    public static bool IsPaused { get; private set; } = false;
 
     void Start()
     {
-        // Ensure buttons are wired
-        pauseButton.onClick.AddListener(TogglePause);
-        resumeButton.onClick.AddListener(ResumeGame);
-        exitButton.onClick.AddListener(ExitGame);
+        if (pauseButton != null) pauseButton.onClick.AddListener(TogglePause);
+        if (resumeButton != null) resumeButton.onClick.AddListener(ResumeGame);
+        if (exitButton != null) exitButton.onClick.AddListener(ExitGame);
 
-        pauseMenuPanel.SetActive(false);
-        Time.timeScale = 1f; // make sure game starts unpaused
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(false);
+
+        Time.timeScale = 1f; // ensure unpaused start
+        IsPaused = false;
     }
 
     public void TogglePause()
     {
-        if (isPaused)
+        if (IsPaused)
             ResumeGame();
         else
             PauseGame();
@@ -32,27 +34,29 @@ public class PauseManager : MonoBehaviour
 
     public void PauseGame()
     {
-        isPaused = true;
-        Time.timeScale = 0f; // ⏸️ stops all Update & physics
-        pauseMenuPanel.SetActive(true);
-        pauseButton.gameObject.SetActive(false);
+        IsPaused = true;
+        Time.timeScale = 0f; // ⏸️ stops physics & animations
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
+        if (pauseButton != null) pauseButton.gameObject.SetActive(false);
     }
 
     public void ResumeGame()
     {
-        isPaused = false;
-        Time.timeScale = 1f; // ▶️ resume normal time
-        pauseMenuPanel.SetActive(false);
-        pauseButton.gameObject.SetActive(true);
+        IsPaused = false;
+        Time.timeScale = 1f; // ▶️ resume game normal time
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+        if (pauseButton != null) pauseButton.gameObject.SetActive(true);
     }
 
     public void ExitGame()
     {
-        Time.timeScale = 1f; // reset time
+        Time.timeScale = 1f;
+        IsPaused = false;
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit(); // for builds
+        Application.Quit();
 #endif
     }
 }

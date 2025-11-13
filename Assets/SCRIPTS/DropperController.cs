@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 
 public class DropperController : MonoBehaviour
@@ -24,10 +25,15 @@ public class DropperController : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver || PauseManager.IsPaused)
             return; // stop all dropper behavior
 
         Move();
+
+        // Ignore input if clicking on UI (pause button etc.)
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
+
         if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
         {
             DropCurrent();
