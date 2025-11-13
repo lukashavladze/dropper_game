@@ -61,12 +61,38 @@ public class DropperController : MonoBehaviour
     }
 
 
+    //void SpawnStone()
+    //{
+    //    currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
+    //    var fo = currentStone.GetComponent<FallingObject>();
+    //    if (fo != null) fo.OnPlaced += OnStonePlaced;
+    //}
+
     void SpawnStone()
     {
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
+
+        // 🔹 Auto-fit collider to sprite bounds
+        var sr = currentStone.GetComponent<SpriteRenderer>();
+        var col = currentStone.GetComponent<BoxCollider2D>();
+
+        if (sr != null && col != null)
+        {
+            // Match collider size exactly to the sprite size (including scaling)
+            col.size = sr.bounds.size / currentStone.transform.localScale.x;
+            col.offset = Vector2.zero;
+        }
+
+        // Optional — ensures physics starts disabled until drop
+        var rb = currentStone.GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.simulated = false;
+
         var fo = currentStone.GetComponent<FallingObject>();
-        if (fo != null) fo.OnPlaced += OnStonePlaced;
+        if (fo != null)
+            fo.OnPlaced += OnStonePlaced;
     }
+
 
 
     void DropCurrent()

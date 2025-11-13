@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     public bool isGameOver = false;
 
 
+
     void Awake() { Instance = this; }
 
 
@@ -136,17 +137,23 @@ public class GameManager : MonoBehaviour
 
 
 
+    //public void Restart()
+    //{
+    //    isGameOver = false;
+    //    score = 0;
+    //    level = 1;
+    //    uiManager.UpdateScore(score);
+    //    uiManager.HideGameOver();
+    //    StackManager.Instance.ResetStack();
+    //    dropper.transform.position = new Vector3(0, dropper.transform.position.y, dropper.transform.position.z);
+    //    dropper.speed = Mathf.Abs(dropper.speed); // optional reset
+    //    backgroundManager.UpdateTheme(0);
+    //    dropper.SendMessage("SpawnStone");
+    //}
+
     public void Restart()
     {
-        isGameOver = false;
-        score = 0;
-        level = 1;
-        uiManager.UpdateScore(score);
-        uiManager.HideGameOver();
-        StackManager.Instance.ResetStack();
-        dropper.transform.position = new Vector3(0, dropper.transform.position.y, dropper.transform.position.z);
-        dropper.speed = Mathf.Abs(dropper.speed); // optional reset
-        backgroundManager.UpdateTheme(0);
-        dropper.SendMessage("SpawnStone");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 }

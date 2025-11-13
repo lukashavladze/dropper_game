@@ -53,10 +53,15 @@ public class StackManager : MonoBehaviour
         if (rb == null)
             yield break;
 
+        // Get sprite bounds (safer than just using transform.localScale)
+        var spriteRenderer = stone.GetComponent<SpriteRenderer>();
+        float stoneHeight = spriteRenderer != null ? spriteRenderer.bounds.size.y : stone.transform.localScale.y;
+        float stoneWidth = spriteRenderer != null ? spriteRenderer.bounds.size.x : stone.transform.localScale.x;
+
         // === FIRST STONE (check platform contact) ===
         if (stack.Count == 0)
         {
-            Vector2 checkPos = stone.transform.position + Vector3.down * 0.5f;
+            Vector2 checkPos = stone.transform.position + Vector3.down * (stoneHeight * 0.5f + 0.05f);
             Collider2D[] hits = Physics2D.OverlapCircleAll(checkPos, overlapRadius);
 
             foreach (var c in hits)
@@ -78,8 +83,10 @@ public class StackManager : MonoBehaviour
                 var platform = hits.FirstOrDefault(h => h.CompareTag("Platform"));
                 if (platform)
                 {
+                    // Align perfectly on top of platform
+                    float platformTop = platform.transform.position.y + platform.transform.localScale.y / 2f;
                     Vector3 alignedPos = stone.transform.position;
-                    alignedPos.y = platform.transform.position.y + platform.transform.localScale.y / 2f + stone.transform.localScale.y / 2f;
+                    alignedPos.y = platformTop + stoneHeight / 2f;
                     stone.transform.position = alignedPos;
                 }
 
@@ -95,28 +102,30 @@ public class StackManager : MonoBehaviour
         {
             // === SUBSEQUENT STONES (check alignment with previous stone) ===
             var top = stack[stack.Count - 1];
+            var topRenderer = top.GetComponent<SpriteRenderer>();
+
+            float topHeight = topRenderer != null ? topRenderer.bounds.size.y : top.transform.localScale.y;
+            float topWidth = topRenderer != null ? topRenderer.bounds.size.x : top.transform.localScale.x;
+
             float dx = Mathf.Abs(stone.transform.position.x - top.transform.position.x);
             float dy = stone.transform.position.y - top.transform.position.y;
 
-            float cubeWidth = top.transform.localScale.x;
-            float cubeHeight = top.transform.localScale.y;
-
-            bool horizontallyAligned = dx < cubeWidth * 0.5f;
-            bool verticallyOnTop = dy > 0 && dy < cubeHeight * 1.5f;
+            bool horizontallyAligned = dx < topWidth * 0.5f;
+            bool verticallyOnTop = dy > 0 && dy < topHeight * 1.5f;
 
             if (horizontallyAligned && verticallyOnTop)
             {
                 success = true;
 
-                // === Bonus check: "Perfect Placement" ===
-                float perfectThreshold = cubeWidth * 0.1f; // 10% of width considered "perfect"
+                // === Perfect placement bonus ===
+                float perfectThreshold = topWidth * 0.1f; // 10% margin
                 if (dx <= perfectThreshold)
                     isPerfectPlacement = true;
 
                 // Snap perfectly on top
                 Vector3 alignedPos = stone.transform.position;
                 alignedPos.x = top.transform.position.x;
-                alignedPos.y = top.transform.position.y + cubeHeight;
+                alignedPos.y = top.transform.position.y + (topHeight / 2f) + (stoneHeight / 2f);
                 stone.transform.position = alignedPos;
 
                 stack.Add(stone);
@@ -124,7 +133,8 @@ public class StackManager : MonoBehaviour
                 if (isPerfectPlacement)
                 {
                     GameManager.Instance?.OnPerfectPlacement(stack.Count, stone);
-                    StartCoroutine(PopStoneEffect(stone)); // 💥 POP effect
+                    StartCoroutine(PopStoneEffect(stone));
+                    UIManager.Instance?.ShowPerfectText();
                 }
                 else
                 {
@@ -142,9 +152,10 @@ public class StackManager : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
-            rb.bodyType = RigidbodyType2D.Static; // Prevent further movement
+            rb.bodyType = RigidbodyType2D.Static;
         }
     }
+
 
 
     public IEnumerator CheckMissWhileFalling(GameObject stone)

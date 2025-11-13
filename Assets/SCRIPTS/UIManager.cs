@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 
@@ -10,13 +11,54 @@ public class UIManager : MonoBehaviour
     public Text levelText;
     public Button restartButton;
     public GameObject gameOverPanel;
-    
+    public Text perfectText;
+
+    public static UIManager Instance;
+
 
 
     void Start()
     {
         UpdateBest();
         HideGameOver();
+    }
+
+    void Awake()
+    {
+        Instance = this;
+        if (perfectText != null)
+            perfectText.gameObject.SetActive(false);
+    }
+
+    public void ShowPerfectText()
+    {
+        if (perfectText == null) return;
+        StartCoroutine(ShowPerfectRoutine());
+    }
+
+    private IEnumerator ShowPerfectRoutine()
+    {
+        perfectText.gameObject.SetActive(true);
+        perfectText.transform.localScale = Vector3.one * 1.2f;
+
+        float duration = 1f;
+        float elapsed = 0f;
+
+        // Fade + scale down smoothly
+        CanvasGroup cg = perfectText.GetComponent<CanvasGroup>();
+        if (cg == null) cg = perfectText.gameObject.AddComponent<CanvasGroup>();
+        cg.alpha = 1f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime; // unaffected by pause
+            cg.alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            perfectText.transform.localScale = Vector3.Lerp(Vector3.one * 1.2f, Vector3.one, elapsed / duration);
+            yield return null;
+        }
+
+        cg.alpha = 0f;
+        perfectText.gameObject.SetActive(false);
     }
 
 
