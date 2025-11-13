@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 
@@ -93,28 +94,42 @@ public class DropperController : MonoBehaviour
             fo.OnPlaced += OnStonePlaced;
     }
 
-
-
+    // to spawn stone not instantly but after 0.8 sec delay
     void DropCurrent()
     {
         if (!currentStone) return;
+
         GameObject fallingStone = currentStone;
         var rb = fallingStone.GetComponent<Rigidbody2D>();
-        //var rb = currentStone.GetComponent<Rigidbody2D>();
         rb.simulated = true;
-        // detach so next spawn won't move it
-        currentStone.transform.parent = null;
-        //currentStone = null;
-        // spawn immediate replacement so it moves while previous falls
-        SpawnStone();
+
+        // Detach the falling stone so the next spawn can move independently
+        fallingStone.transform.parent = null;
+
+        // Notify game manager that drop happened
         GameManager.Instance.OnDrop();
-        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(currentStone));
+
+        // Start checking for misses using the falling stone reference
+        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(fallingStone));
+
+        // Clear the reference now that it's dropped
+        currentStone = null;
+
+        // ✅ Spawn after 0.8s delay (this is the correct place)
+        StartCoroutine(SpawnNextAfterDelay(0.8f));
     }
+
 
 
     void OnStonePlaced(GameObject stone)
     {
         // forwarded from FallingObject when it settles
         StackManager.Instance.RegisterPlacedStone(stone);
+    }
+
+    private IEnumerator SpawnNextAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SpawnStone(); // <-- call your actual spawn function name here
     }
 }
