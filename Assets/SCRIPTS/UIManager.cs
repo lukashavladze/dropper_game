@@ -2,26 +2,17 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
-
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance;
+
     public Text scoreText;
     public Text bestText;
     public Text levelText;
     public Button restartButton;
+    public Button continueButton;       // NEW
     public GameObject gameOverPanel;
     public Text perfectText;
-
-    public static UIManager Instance;
-
-
-
-    void Start()
-    {
-        UpdateBest();
-        HideGameOver();
-    }
 
     void Awake()
     {
@@ -29,6 +20,14 @@ public class UIManager : MonoBehaviour
         if (perfectText != null)
             perfectText.gameObject.SetActive(false);
     }
+
+    void Start()
+    {
+        UpdateBest();
+        HideGameOver();
+    }
+
+    // ---------------------- PERFECT TEXT ------------------------
 
     public void ShowPerfectText()
     {
@@ -39,71 +38,66 @@ public class UIManager : MonoBehaviour
     private IEnumerator ShowPerfectRoutine()
     {
         perfectText.gameObject.SetActive(true);
-        perfectText.transform.localScale = Vector3.one * 1.2f;
 
         float duration = 1f;
         float elapsed = 0f;
-
-        // Fade + scale down smoothly
         CanvasGroup cg = perfectText.GetComponent<CanvasGroup>();
         if (cg == null) cg = perfectText.gameObject.AddComponent<CanvasGroup>();
         cg.alpha = 1f;
 
         while (elapsed < duration)
         {
-            elapsed += Time.unscaledDeltaTime; // unaffected by pause
+            elapsed += Time.unscaledDeltaTime;
             cg.alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
-            perfectText.transform.localScale = Vector3.Lerp(Vector3.one * 1.2f, Vector3.one, elapsed / duration);
             yield return null;
         }
 
-        cg.alpha = 0f;
         perfectText.gameObject.SetActive(false);
     }
 
+    // ---------------------- SCORE & LEVEL ------------------------
 
     public void UpdateScore(int score)
     {
         if (scoreText == null)
-        {
-            Debug.LogError("⚠️ UIManager: ScoreText is NOT assigned in the Inspector!");
             return;
-        }
 
         scoreText.text = "Score: " + score;
-
-        //if (score > LeaderboardManager.Instance.GetBest())
-        //{
-        //    LeaderboardManager.Instance.SetBest(score);
-        //    UpdateBest();
-        //}
     }
-
 
     public void UpdateLevel(int level)
     {
-        levelText.text = "lvl: " + level;
+        if (levelText != null)
+            levelText.text = "lvl: " + level;
     }
 
+    void UpdateBest()
+    {
+        if (bestText != null)
+            bestText.text = "Best: " + LeaderboardManager.Instance.GetBest();
+    }
+
+    // ---------------------- GAME OVER PANEL ------------------------
 
     public void ShowGameOver()
     {
         gameOverPanel.SetActive(true);
     }
+
     public void HideGameOver()
     {
         gameOverPanel.SetActive(false);
     }
 
-
-    void UpdateBest()
-    {
-        bestText.text = "Best: " + LeaderboardManager.Instance.GetBest();
-    }
-
+    // ----------------------- BUTTONS -----------------------------
 
     public void OnRestartButton()
     {
         GameManager.Instance.Restart();
+    }
+
+    public void OnContinueButton()      // NEW
+    {
+        GameManager.Instance.ContinueGame();
     }
 }
