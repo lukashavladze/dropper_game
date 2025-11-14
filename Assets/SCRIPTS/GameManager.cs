@@ -24,6 +24,14 @@ public class GameManager : MonoBehaviour
     public int placedToLevelUp = 5;
     public bool isGameOver = false;
 
+    // for sounds
+    public AudioClip dropSound;
+    public AudioClip perfectSound;
+    public AudioClip placedSound;
+    public AudioClip missSound;
+
+    private AudioSource audioSource;
+
 
 
     void Awake() { Instance = this; }
@@ -31,16 +39,24 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         uiManager.UpdateScore(score);
         var camFollow = FindFirstObjectByType<CameraFollow>();
         if (camFollow != null && dropperTransform != null)
             camFollow.target = dropperTransform;
     }
 
+    void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+            audioSource.PlayOneShot(clip);
+    }
+
 
     public void OnDrop()
     {
         // called when player drops — can add sound or analytics
+        PlaySound(dropSound);
     }
 
 
@@ -54,7 +70,7 @@ public class GameManager : MonoBehaviour
     public void OnMiss(GameObject stone)
     {
         if (isGameOver) return; // prevent multiple triggers
-
+        PlaySound(missSound);
         isGameOver = true;
         uiManager.ShowGameOver();
 
@@ -70,6 +86,8 @@ public class GameManager : MonoBehaviour
         // Increase score
         score += 1;
         uiManager.UpdateScore(score);
+
+        PlaySound(placedSound);
 
         // Move dropper upward (camera will follow automatically)
         Vector3 pos = dropperTransform.position;
@@ -104,12 +122,15 @@ public class GameManager : MonoBehaviour
 
     public void OnPerfectPlacement(int level, GameObject stone)
     {
+        
+        PlaySound(perfectSound);
         // Bonus logic
         AddScore(10);
-
+        
         // Particle effect
         if (perfectPlacementEffect != null)
         {
+            
             Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
             GameObject fx = Instantiate(perfectPlacementEffect, pos, Quaternion.identity);
             // dropper to follow upwards after perfect placement
@@ -134,22 +155,6 @@ public class GameManager : MonoBehaviour
         score += amount;
         uiManager.UpdateScore(score);
     }
-
-
-
-    //public void Restart()
-    //{
-    //    isGameOver = false;
-    //    score = 0;
-    //    level = 1;
-    //    uiManager.UpdateScore(score);
-    //    uiManager.HideGameOver();
-    //    StackManager.Instance.ResetStack();
-    //    dropper.transform.position = new Vector3(0, dropper.transform.position.y, dropper.transform.position.z);
-    //    dropper.speed = Mathf.Abs(dropper.speed); // optional reset
-    //    backgroundManager.UpdateTheme(0);
-    //    dropper.SendMessage("SpawnStone");
-    //}
 
     public void Restart()
     {
