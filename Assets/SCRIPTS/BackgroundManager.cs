@@ -14,6 +14,7 @@ public class BackgroundManager : MonoBehaviour
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
+            UpdateTheme(0);
     }
 
     void LateUpdate()

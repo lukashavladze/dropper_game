@@ -2513,7 +2513,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgRenderer: {fileID: 1098642027}
   backgrounds:
-  - {fileID: 21300000, guid: d9b31ebd60af68c469212c1a9f513e74, type: 3}
+  - {fileID: 21300000, guid: 967a3989256aa364b920d06fb3293e86, type: 3}
+  - {fileID: 21300000, guid: e66e33a9164446b4e901b288c79cb011, type: 3}
+  - {fileID: 21300000, guid: c0f2095bb623c274f8e0f9024746b314, type: 3}
   mainCamera: {fileID: 519420031}
   followSpeed: 2
   yOffset: 0
