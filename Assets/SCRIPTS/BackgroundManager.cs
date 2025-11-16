@@ -5,7 +5,7 @@ public class BackgroundManager : MonoBehaviour
     public SpriteRenderer bgRenderer; // background sprite
     public Sprite[] backgrounds; // optional theme sprites
     public Camera mainCamera;
-    public float followSpeed = 2f; // how fast it follows camera
+    public float followSpeed = 4f; // how fast it follows camera
     public float yOffset = 0f;     // adjust if needed
 
     private int currentThemeIndex = 0;

@@ -90,8 +90,12 @@ public class GameManager : MonoBehaviour
         PlaySound(placedSound);
 
         // Move dropper upward (camera will follow automatically)
+        // Move dropper based on stone height instead of fixed value
+        var sr = stone.GetComponent<SpriteRenderer>();
+        float stoneHeight = sr != null ? sr.bounds.size.y : 1f;
+
         Vector3 pos = dropperTransform.position;
-        pos.y += verticalStep;
+        pos.y += stoneHeight;   // Move exactly 1 stone upwards
         dropperTransform.position = pos;
 
         if (placedCount % 5 == 0) // change background every 5 cubes
@@ -134,8 +138,11 @@ public class GameManager : MonoBehaviour
             Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
             GameObject fx = Instantiate(perfectPlacementEffect, pos, Quaternion.identity);
             // dropper to follow upwards after perfect placement
+            var sr = stone.GetComponent<SpriteRenderer>();
+            float stoneHeight = sr != null ? sr.bounds.size.y : 1f;
+
             Vector3 pos1 = dropperTransform.position;
-            pos1.y += verticalStep;
+            pos1.y += stoneHeight;
             dropperTransform.position = pos1;
             Destroy(fx, 2f); // auto-remove after 2 seconds
         }

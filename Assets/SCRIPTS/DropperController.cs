@@ -16,12 +16,48 @@ public class DropperController : MonoBehaviour
 
     private GameObject currentStone;
     private int direction = 1;
+    public static DropperController Instance;
+
+    public SpriteRenderer dropperSpriteRenderer;
+    public SpriteRenderer stoneSpriteRenderer;   // falling stone
+
+    public Sprite currentStoneSkin;
 
 
     void Start()
     {
+        // Load equipped skin when game starts
+        string skinName = PlayerPrefs.GetString("EquippedStoneSkin", "");
+        if (!string.IsNullOrEmpty(skinName))
+        {
+            Sprite skin = Resources.Load<Sprite>("Skins/" + skinName);
+            if (skin != null)
+            {
+                SetStoneSkin(skin);
+            }
+        }
         SpawnStone();
     }
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
+
+    public void SetDropperSprite(Sprite sprite)
+    {
+        if (dropperSpriteRenderer != null && sprite != null)
+        {
+            dropperSpriteRenderer.sprite = sprite;
+            Debug.Log("Dropper skin changed to: " + sprite.name);
+        }
+        else
+        {
+            Debug.LogWarning("DropperController: dropperSpriteRenderer or sprite is null!");
+        }
+    }
+
+
 
 
     void Update()
@@ -61,38 +97,34 @@ public class DropperController : MonoBehaviour
         }
     }
 
-
-    //void SpawnStone()
-    //{
-    //    currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
-    //    var fo = currentStone.GetComponent<FallingObject>();
-    //    if (fo != null) fo.OnPlaced += OnStonePlaced;
-    //}
-
     void SpawnStone()
     {
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
 
-        // 🔹 Auto-fit collider to sprite bounds
+        // Apply selected skin to the stone
         var sr = currentStone.GetComponent<SpriteRenderer>();
-        var col = currentStone.GetComponent<BoxCollider2D>();
+        if (sr != null && currentStoneSkin != null)
+        {
+            sr.sprite = currentStoneSkin;
+        }
 
+        // Adjust collider to match sprite
+        var col = currentStone.GetComponent<BoxCollider2D>();
         if (sr != null && col != null)
         {
-            // Match collider size exactly to the sprite size (including scaling)
             col.size = sr.bounds.size / currentStone.transform.localScale.x;
             col.offset = Vector2.zero;
         }
 
-        // Optional — ensures physics starts disabled until drop
+        // Disable physics until drop
         var rb = currentStone.GetComponent<Rigidbody2D>();
-        if (rb != null)
-            rb.simulated = false;
+        if (rb != null) rb.simulated = false;
 
         var fo = currentStone.GetComponent<FallingObject>();
         if (fo != null)
             fo.OnPlaced += OnStonePlaced;
     }
+
 
     // to spawn stone not instantly but after 0.8 sec delay
     void DropCurrent()
@@ -132,4 +164,17 @@ public class DropperController : MonoBehaviour
         yield return new WaitForSeconds(delay);
         SpawnStone(); // <-- call your actual spawn function name here
     }
+
+    public void SetStoneSkin(Sprite newSkin)
+    {
+        currentStoneSkin = newSkin;
+        if (stoneSpriteRenderer != null)
+            stoneSpriteRenderer.sprite = newSkin;
+    }
+
+    public Sprite GetCurrentStoneSkin()
+    {
+        return currentStoneSkin;
+    }
+
 }

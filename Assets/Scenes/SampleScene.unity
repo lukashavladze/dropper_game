@@ -1262,7 +1262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f9a603fd3254144aa19432b90798bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stonePrefab: {fileID: 3290276066861575674, guid: 3679bf8c678b0ca49815a315fe198656, type: 3}
+  stonePrefab: {fileID: 7235089483406942489, guid: 9b89a2cf9e3a7b84b8af148b1000dadb, type: 3}
   spawnPoint: {fileID: 680315632}
   speed: 3
   leftX: -5
@@ -1270,6 +1270,7 @@ MonoBehaviour:
   speedIncreasePerLevel: 1.5
   moveSpeed: 5
   baseSpeed: 5
+  dropperSpriteRenderer: {fileID: 975458165}
 --- !u!212 &975458165
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2517,8 +2518,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e66e33a9164446b4e901b288c79cb011, type: 3}
   - {fileID: 21300000, guid: c0f2095bb623c274f8e0f9024746b314, type: 3}
   mainCamera: {fileID: 519420031}
-  followSpeed: 2
-  yOffset: 0
+  followSpeed: 3
+  yOffset: 1
 --- !u!4 &1972425917
 Transform:
   m_ObjectHideFlags: 0
