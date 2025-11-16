@@ -88,13 +88,8 @@ public class InventoryManager : MonoBehaviour
     // When inventory button clicked
     private void OnSelectItem(Sprite skin)
     {
-        equippedSkin = skin;
-
-        if (DropperController.Instance != null)
-        {
-            DropperController.Instance.SetStoneSkin(skin);
-            Debug.Log("Equipped stone skin: " + skin.name);
-        }
+        SkinSelection.SelectedStoneSkin = skin; // store selection
+        Debug.Log("Selected stone skin: " + skin.name);
     }
 
     // Open/close inventory panel

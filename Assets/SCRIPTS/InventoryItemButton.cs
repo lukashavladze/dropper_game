@@ -16,6 +16,12 @@ public class InventoryItemButton : MonoBehaviour
         if (iconImage == null) Debug.LogError("iconImage not assigned on " + gameObject.name);
     }
 
+    void Start()
+    {
+        if (button != null)
+            button.onClick.AddListener(() => Debug.Log("Button clicked: " + gameObject.name));
+    }
+
     public void SetItem(Sprite sprite, Action<Sprite> clickCallback)
     {
         if (iconImage == null)

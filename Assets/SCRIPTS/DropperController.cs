@@ -18,44 +18,41 @@ public class DropperController : MonoBehaviour
     private int direction = 1;
     public static DropperController Instance;
 
-    public SpriteRenderer dropperSpriteRenderer;
-    public SpriteRenderer stoneSpriteRenderer;   // falling stone
+   // public SpriteRenderer dropperSpriteRenderer;
 
     public Sprite currentStoneSkin;
-
-
-    void Start()
-    {
-        // Load equipped skin when game starts
-        string skinName = PlayerPrefs.GetString("EquippedStoneSkin", "");
-        if (!string.IsNullOrEmpty(skinName))
-        {
-            Sprite skin = Resources.Load<Sprite>("Skins/" + skinName);
-            if (skin != null)
-            {
-                SetStoneSkin(skin);
-            }
-        }
-        SpawnStone();
-    }
 
     void Awake()
     {
         if (Instance == null) Instance = this;
     }
 
-    public void SetDropperSprite(Sprite sprite)
+    void Start()
     {
-        if (dropperSpriteRenderer != null && sprite != null)
+        // If a skin was selected in the menu, use it
+        if (SkinSelection.SelectedStoneSkin != null)
         {
-            dropperSpriteRenderer.sprite = sprite;
-            Debug.Log("Dropper skin changed to: " + sprite.name);
+            SetStoneSkin(SkinSelection.SelectedStoneSkin);
+            Debug.Log("Applied selected stone skin: " + SkinSelection.SelectedStoneSkin.name);
         }
-        else
-        {
-            Debug.LogWarning("DropperController: dropperSpriteRenderer or sprite is null!");
-        }
+
+        // spawn the first stone
+        SpawnStone();
     }
+
+
+    //public void SetDropperSprite(Sprite sprite)
+    //{
+    //    if (dropperSpriteRenderer != null && sprite != null)
+    //    {
+    //        dropperSpriteRenderer.sprite = sprite;
+    //        Debug.Log("Dropper skin changed to: " + sprite.name);
+    //    }
+    //    else
+    //    {
+    //        Debug.LogWarning("DropperController: dropperSpriteRenderer or sprite is null!");
+    //    }
+    //}
 
 
 
@@ -101,14 +98,14 @@ public class DropperController : MonoBehaviour
     {
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
 
-        // Apply selected skin to the stone
+        // Always apply the selected skin here
         var sr = currentStone.GetComponent<SpriteRenderer>();
         if (sr != null && currentStoneSkin != null)
         {
-            sr.sprite = currentStoneSkin;
+            sr.sprite = currentStoneSkin;  // <- this ensures the new stone gets the selected sprite
         }
 
-        // Adjust collider to match sprite
+        // Collider adjustment
         var col = currentStone.GetComponent<BoxCollider2D>();
         if (sr != null && col != null)
         {
@@ -167,9 +164,20 @@ public class DropperController : MonoBehaviour
 
     public void SetStoneSkin(Sprite newSkin)
     {
-        currentStoneSkin = newSkin;
-        if (stoneSpriteRenderer != null)
-            stoneSpriteRenderer.sprite = newSkin;
+        currentStoneSkin = newSkin; // store selection for future stones
+
+        // Apply to currently spawned stone if exists
+        if (currentStone != null)
+        {
+            var sr = currentStone.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sprite = newSkin;
+                Debug.Log("Current stone sprite updated: " + newSkin.name);
+            }
+        }
+
+        Debug.Log("DropperController: Stone skin set to " + newSkin.name);
     }
 
     public Sprite GetCurrentStoneSkin()
