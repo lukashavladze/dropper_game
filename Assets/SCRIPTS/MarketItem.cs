@@ -6,8 +6,6 @@ public class MarketItem : MonoBehaviour
     public Sprite itemSprite;
     public int price = 10;
 
-    //public Text priceText;
-
     public Button iconButton;
     public Button buyButton;
     public Button cancelButton;
@@ -18,15 +16,15 @@ public class MarketItem : MonoBehaviour
 
     private bool selected = false;
 
+    // static reference to previously selected item
+    private static MarketItem lastSelectedItem;
 
     public Vector2 iconSize = new Vector2(100, 100);
+
     void Start()
     {
-        // for testing
-        PlayerPrefs.DeleteAll(); // need to delete
-
-
-        //priceText.text = price.ToString();
+        // Remove DeleteAll in production
+        // PlayerPrefs.DeleteAll(); 
 
         buyButton.gameObject.SetActive(false);
         cancelButton.gameObject.SetActive(false);
@@ -35,28 +33,33 @@ public class MarketItem : MonoBehaviour
         buyButton.onClick.AddListener(OnBuy);
         cancelButton.onClick.AddListener(OnCancel);
 
-        // Already bought?
+        // Already purchased?
         if (IsPurchased())
         {
             MarkAsPurchased();
         }
 
-        // Set the button image to the item sprite
+        // Set icon image
         iconButton.image.sprite = itemSprite;
-        // Force consistent size
         iconButton.image.rectTransform.sizeDelta = iconSize;
-        //iconButton.image.SetNativeSize();
     }
 
     void OnSelect()
     {
+        // hide buttons of previous selection
+        if (lastSelectedItem != null && lastSelectedItem != this)
+        {
+            lastSelectedItem.HideSelectionButtons();
+        }
+
+        lastSelectedItem = this;
+
         if (IsPurchased()) return;
 
         selected = true;
 
-        // Highlight by scaling up
+        // Highlight
         iconButton.transform.localScale = Vector3.one * 1.1f;
-
         buyButton.gameObject.SetActive(true);
         cancelButton.gameObject.SetActive(true);
 
@@ -69,20 +72,16 @@ public class MarketItem : MonoBehaviour
         {
             CurrencyManager.Instance.SpendCoins(price);
 
-            //PlayerPrefs.SetInt(itemSprite.name + "_Purchased", 1);
-            //PlayerPrefs.Save();
+            // Save purchase permanently
+            PlayerPrefs.SetInt(itemSprite.name + "_Purchased", 1);
+            PlayerPrefs.Save();
 
             Debug.Log("[DEBUG] Purchased " + itemSprite.name);
 
             InventoryManager.Instance.SetItemInSlot(inventorySlotIndex, itemSprite);
 
             MarkAsPurchased();
-            // Gray out the market button
-            iconButton.interactable = false;
-            if (itemSpriteImage != null) itemSpriteImage.color = Color.gray;
         }
-
-    
         else
         {
             Debug.Log("[DEBUG] Not enough coins to buy " + itemSprite.name);
@@ -100,12 +99,12 @@ public class MarketItem : MonoBehaviour
     void HideSelectionButtons()
     {
         selected = false;
-
-        // Reset scale when deselected
         iconButton.transform.localScale = Vector3.one;
-
         buyButton.gameObject.SetActive(false);
         cancelButton.gameObject.SetActive(false);
+
+        if (lastSelectedItem == this)
+            lastSelectedItem = null;
     }
 
     bool IsPurchased()
@@ -117,16 +116,11 @@ public class MarketItem : MonoBehaviour
     {
         iconButton.interactable = false;
 
-        // Gray out the icon image (the child that shows the item)
         if (iconButton.image != null)
-        {
-            iconButton.image.color = Color.gray; // optional, for background
-        }
+            iconButton.image.color = Color.gray;
 
-        if (itemSpriteImage != null) // this should be the Image showing the item sprite
-        {
+        if (itemSpriteImage != null)
             itemSpriteImage.color = Color.gray;
-        }
 
         HideSelectionButtons();
     }

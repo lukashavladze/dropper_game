@@ -18,7 +18,7 @@ public class DropperController : MonoBehaviour
     private int direction = 1;
     public static DropperController Instance;
 
-   // public SpriteRenderer dropperSpriteRenderer;
+    // public SpriteRenderer dropperSpriteRenderer;
 
     public Sprite currentStoneSkin;
 
