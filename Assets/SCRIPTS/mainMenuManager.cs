@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
+
+
     public void PlayGame()
     {
         // Make sure your main game scene is added in Build Settings

@@ -66,11 +66,6 @@ public class PauseManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         IsPaused = false;
-
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        SceneManager.LoadScene("menu");
     }
 }
