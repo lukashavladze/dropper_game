@@ -13,15 +13,18 @@ public class InventoryItemButton : MonoBehaviour
 
     void Awake()
     {
+        // Don't warn here, UI may be disabled!
         button = GetComponent<Button>();
-        if (button == null) Debug.LogError("NO BUTTON ON " + gameObject.name);
-
-        if (iconImage == null) Debug.LogError("NO ICON IMAGE ON " + gameObject.name);
     }
+
 
 
     public void SetItem(Sprite sprite, Action<Sprite> clickCallback)
     {
+        // Try again (lazy-load) in case Awake happened while disabled
+        if (button == null)
+            button = GetComponent<Button>();
+
         if (iconImage == null || button == null)
         {
             Debug.LogWarning("[InventoryItemButton] SetItem failed: missing components on " + gameObject.name);
@@ -39,7 +42,8 @@ public class InventoryItemButton : MonoBehaviour
             button.onClick.AddListener(() => clickCallback(currentSprite));
     }
 
-    public void Lock()
+
+public void Lock()
     {
         if (iconImage != null)
             iconImage.color = new Color(1, 1, 1, 0.3f);

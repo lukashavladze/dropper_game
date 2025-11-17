@@ -14,6 +14,8 @@ public class InventoryManager : MonoBehaviour
 
     private const string OWNED_KEY = "OwnedSkins";
 
+    public bool resetOnStart = false;
+
     private void Awake()
     {
         if (Instance == null)

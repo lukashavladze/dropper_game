@@ -24,7 +24,7 @@ public class MarketItem : MonoBehaviour
     void Start()
     {
         // Remove DeleteAll in production
-        PlayerPrefs.DeleteAll(); 
+        //PlayerPrefs.DeleteAll(); 
 
         buyButton.gameObject.SetActive(false);
         cancelButton.gameObject.SetActive(false);
