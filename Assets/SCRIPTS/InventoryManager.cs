@@ -1,109 +1,168 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [Header("Inventory UI")]
+    // UI refs are set by BindUI; keep them public so initializer can set them
+    [Header("UI (assigned at runtime by InventoryUIInitializer)")]
     public GameObject InventoryPanel;
-    public InventoryItemButton[] inventorySlots; // assign buttons in inspector
+    public InventoryItemButton[] inventorySlots;
 
-    private Sprite equippedSkin; // currently selected skin
+    private const string OWNED_KEY = "OwnedSkins";
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // manager persists, UI will be rebound
         }
         else
         {
             Destroy(gameObject);
             return;
         }
-
-        InitializeInventory();
     }
 
-    void Start()
+    // === Public API used by UI initializer ===
+    public void BindUI(GameObject panel, InventoryItemButton[] slots, Button openButton, Button exitButton)
     {
-        InventoryPanel.SetActive(true);
-        // Awake has run for all buttons
-        InventoryPanel.SetActive(false);
-    }
+        InventoryPanel = panel;
+        inventorySlots = slots;
 
-    private void InitializeInventory()
-    {
-        if (inventorySlots == null || inventorySlots.Length == 0)
+        // hook open/exit safely (remove old listeners)
+        if (openButton != null)
         {
-            Debug.LogWarning("Inventory slots not assigned in inspector!");
+            openButton.onClick.RemoveAllListeners();
+            openButton.onClick.AddListener(OpenInventory);
+            Debug.Log("[InventoryManager] Bound Open button.");
+        }
+        else
+            Debug.LogWarning("[InventoryManager] openButton is null when binding.");
+
+        if (exitButton != null)
+        {
+            exitButton.onClick.RemoveAllListeners();
+            exitButton.onClick.AddListener(CloseInventory);
+            Debug.Log("[InventoryManager] Bound Exit button.");
+        }
+        else
+            Debug.LogWarning("[InventoryManager] exitButton is null when binding.");
+
+        // Ensure panel is initially closed
+        if (InventoryPanel != null) InventoryPanel.SetActive(false);
+
+        // Refresh UI to reflect saved data
+        ReloadOwnedItems();
+    }
+
+    // Show/hide
+    public void OpenInventory()
+    {
+        if (InventoryPanel == null)
+        {
+            Debug.LogError("[InventoryManager] OpenInventory: InventoryPanel is null!");
             return;
         }
-
-        // Optional: sanity check buttons
-        foreach (var slot in inventorySlots)
-        {
-            if (slot == null)
-            {
-                Debug.LogWarning("One of the inventory slots is null!");
-                continue;
-            }
-            if (slot.GetComponent<Button>() == null)
-            {
-                Debug.LogError("Button missing on inventory slot: " + slot.name);
-            }
-        }
+        InventoryPanel.SetActive(true);
+    }
+    public void CloseInventory()
+    {
+        if (InventoryPanel != null)
+            InventoryPanel.SetActive(false);
     }
 
-    // Add a sprite to a specific slot safely
+    // Set item into slot AND save mapping to PlayerPrefs
+    public void SetItemInSlotAndSave(int slotIndex, Sprite sprite)
+    {
+        if (sprite == null)
+        {
+            Debug.LogError("[InventoryManager] SetItemInSlotAndSave: sprite is null");
+            return;
+        }
+        SetItemInSlot(slotIndex, sprite);
+        // save mapping: slot_i -> spriteName
+        PlayerPrefs.SetString("slot_" + slotIndex, sprite.name);
+        PlayerPrefs.Save();
+        Debug.Log("[InventoryManager] Saved slot_" + slotIndex + " = " + sprite.name);
+    }
+
     public void SetItemInSlot(int slotIndex, Sprite itemSprite)
     {
         if (inventorySlots == null || slotIndex < 0 || slotIndex >= inventorySlots.Length)
         {
-            Debug.LogWarning("Invalid inventory slot index or slots not assigned!");
+            Debug.LogWarning("[InventoryManager] SetItemInSlot: invalid index or slots not assigned");
             return;
         }
 
         var slot = inventorySlots[slotIndex];
-
-        if (slot == null || slot.GetComponent<Button>() == null)
+        if (slot == null)
         {
-            // Slot not ready, wait one frame
-            StartCoroutine(DelayedSetItem(slotIndex, itemSprite));
+            Debug.LogWarning("[InventoryManager] SetItemInSlot: slot is null at index " + slotIndex);
             return;
         }
 
         slot.SetItem(itemSprite, OnSelectItem);
     }
 
-    private IEnumerator DelayedSetItem(int slotIndex, Sprite itemSprite)
+    // Called when user clicks a slot; this sets the chosen skin in your game
+    private void OnSelectItem(UnityEngine.Sprite skin)
     {
-        yield return null; // wait one frame for Awake() to run
-        SetItemInSlot(slotIndex, itemSprite);
+        SkinSelection.SelectedStoneSkin = skin;
+        Debug.Log("[InventoryManager] Selected skin: " + (skin ? skin.name : "null"));
     }
 
-    // When inventory button clicked
-    private void OnSelectItem(Sprite skin)
+    // Reload saved mapping -> apply sprites to current UI slots
+    public void ReloadOwnedItems()
     {
-        SkinSelection.SelectedStoneSkin = skin; // store selection
-        Debug.Log("Selected stone skin: " + skin.name);
-    }
+        if (inventorySlots == null)
+        {
+            Debug.LogWarning("[InventoryManager] ReloadOwnedItems: inventorySlots is null. UI not bound yet.");
+            return;
+        }
 
-    // Open/close inventory panel
-    public void OpenInventory() => InventoryPanel.SetActive(true);
-    public void CloseInventory() => InventoryPanel.SetActive(false);
+        Debug.Log("[InventoryManager] ReloadOwnedItems: slots = " + inventorySlots.Length);
 
-    // Get equipped skin
-    public Sprite GetEquippedSkin() => equippedSkin;
+        for (int i = 0; i < inventorySlots.Length; i++)
+        {
+            var slot = inventorySlots[i];
+            if (slot == null)
+            {
+                Debug.LogWarning("[InventoryManager] ReloadOwnedItems: slot " + i + " is null.");
+                continue;
+            }
 
-    // Equip new skin programmatically
-    public void EquipDropperSkin(Sprite newSkin)
-    {
-        PlayerPrefs.SetString("EquippedStoneSkin", newSkin.name);
-        if (DropperController.Instance != null)
-            DropperController.Instance.SetStoneSkin(newSkin);
+            string key = "slot_" + i;
+            if (!PlayerPrefs.HasKey(key))
+            {
+                // not purchased/assigned -> lock
+                slot.Lock();
+                continue;
+            }
+
+            string spriteName = PlayerPrefs.GetString(key, "");
+            if (string.IsNullOrEmpty(spriteName))
+            {
+                slot.Lock();
+                continue;
+            }
+
+            Sprite loaded = Resources.Load<Sprite>("Skins/" + spriteName);
+            if (loaded == null)
+            {
+                Debug.LogWarning("[InventoryManager] ReloadOwnedItems: sprite not found for " + spriteName);
+                slot.Lock();
+                continue;
+            }
+
+            slot.SetItem(loaded, OnSelectItem);
+            slot.Unlock();
+        }
+
+        Debug.Log("[InventoryManager] ReloadOwnedItems done.");
     }
 }

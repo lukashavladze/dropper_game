@@ -24,7 +24,7 @@ public class MarketItem : MonoBehaviour
     void Start()
     {
         // Remove DeleteAll in production
-        // PlayerPrefs.DeleteAll(); 
+        PlayerPrefs.DeleteAll(); 
 
         buyButton.gameObject.SetActive(false);
         cancelButton.gameObject.SetActive(false);
@@ -72,21 +72,21 @@ public class MarketItem : MonoBehaviour
         {
             CurrencyManager.Instance.SpendCoins(price);
 
-            // Save purchase permanently
+            // Save purchase permanence (optional extra key)
             PlayerPrefs.SetInt(itemSprite.name + "_Purchased", 1);
             PlayerPrefs.Save();
 
-            Debug.Log("[DEBUG] Purchased " + itemSprite.name);
+            // Assign to inventory and save mapping
+            InventoryManager.Instance.SetItemInSlotAndSave(inventorySlotIndex, itemSprite);
 
-            InventoryManager.Instance.SetItemInSlot(inventorySlotIndex, itemSprite);
+            Debug.Log("[MarketItem] Purchased and saved " + itemSprite.name);
 
             MarkAsPurchased();
         }
         else
         {
-            Debug.Log("[DEBUG] Not enough coins to buy " + itemSprite.name);
+            Debug.Log("[MarketItem] Not enough coins");
         }
-
         HideSelectionButtons();
     }
 
