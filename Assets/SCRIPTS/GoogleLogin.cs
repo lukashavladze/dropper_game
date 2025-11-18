@@ -17,6 +17,7 @@ public class GoogleLogin : MonoBehaviour
 
     public void SignInWithGoogle()
     {
+        Debug.Log("Google Login BUTTON CLICKED!");
         StartCoroutine(GoogleSignInRoutine());
     }
 
