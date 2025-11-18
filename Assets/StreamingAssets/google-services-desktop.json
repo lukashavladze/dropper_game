@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "268879827526",
+    "project_id": "starbloxx-c4908",
+    "storage_bucket": "starbloxx-c4908.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268879827526:android:fef4c36bf104af465a7047",
+        "android_client_info": {
+          "package_name": "com.lukascompany.starbloxx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268879827526-d6um56khg9da2q6rl3gevb6vap5rhqhp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lukascompany.starbloxx",
+            "certificate_hash": "9805c4a1fe0699d0534090d342d7fb7de0332a40"
+          }
+        },
+        {
+          "client_id": "268879827526-4v51plsbmg4qs5e70gir9qs46sp3ivlv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRbaZpSQijSsVqJ80LFXIpvob7PlJtll0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268879827526-4v51plsbmg4qs5e70gir9qs46sp3ivlv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "268879827526-jpthvbh0vicrvhv3n9eqjko9nf1uo3g2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.lukascompany.starbloxx"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

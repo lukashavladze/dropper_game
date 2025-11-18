@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id,@string/default_android_client_id,@string/default_web_client_id">
+  <string name="gcm_defaultSenderId" translatable="false">268879827526</string>
+  <string name="google_storage_bucket" translatable="false">starbloxx-c4908.firebasestorage.app</string>
+  <string name="project_id" translatable="false">starbloxx-c4908</string>
+  <string name="google_api_key" translatable="false">AIzaSyDRbaZpSQijSsVqJ80LFXIpvob7PlJtll0</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDRbaZpSQijSsVqJ80LFXIpvob7PlJtll0</string>
+  <string name="google_app_id" translatable="false">1:268879827526:android:fef4c36bf104af465a7047</string>
+  <string name="default_android_client_id" translatable="false">268879827526-d6um56khg9da2q6rl3gevb6vap5rhqhp.apps.googleusercontent.com</string>
+  <string name="default_web_client_id" translatable="false">268879827526-4v51plsbmg4qs5e70gir9qs46sp3ivlv.apps.googleusercontent.com</string>
+</resources>
