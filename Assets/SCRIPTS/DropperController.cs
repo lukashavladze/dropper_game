@@ -1,5 +1,4 @@
-﻿// Updated DropperController with correct skin application to spawned stones
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,6 +11,8 @@ public class DropperController : MonoBehaviour
     public float speedIncreasePerLevel = 1.5f;
 
     private GameObject currentStone;
+    public GameObject CurrentStone => currentStone; // safe public getter
+
     private int direction = 1;
     public static DropperController Instance;
 
@@ -20,7 +21,7 @@ public class DropperController : MonoBehaviour
 
     void Awake()
     {
-        Instance = this;
+        if (Instance == null) Instance = this;
     }
 
     void Start()
@@ -35,14 +36,13 @@ public class DropperController : MonoBehaviour
 
     void Update()
     {
-        var gm = GameManager.Instance;
-        if (gm != null && gm.isGameOver) return;
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
         if (PauseManager.IsPaused) return;
 
         Move();
 
-        if (EventSystem.current != null &&
-            EventSystem.current.IsPointerOverGameObject())
+        // Ignore input if clicking on UI
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
         if (Input.GetMouseButtonDown(0) ||
@@ -61,7 +61,6 @@ public class DropperController : MonoBehaviour
     {
         float move = moveSpeed * Time.deltaTime;
         transform.position += Vector3.right * direction * move;
-
         if (transform.position.x > rightX) direction = -1;
         if (transform.position.x < leftX) direction = 1;
 
@@ -69,28 +68,22 @@ public class DropperController : MonoBehaviour
             currentStone.transform.position = spawnPoint.position;
     }
 
-    // ----------------------------------------------------------
-    // SPAWN SYSTEM
-    // ----------------------------------------------------------
     public void SpawnStone()
     {
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
 
-        // Apply selected skin immediately
+        // apply selected skin
         if (currentStoneSkin != null)
         {
             var sr2 = currentStone.GetComponent<SpriteRenderer>();
             if (sr2 != null) sr2.sprite = currentStoneSkin;
         }
 
-        SpriteRenderer sr = currentStone.GetComponent<SpriteRenderer>();
+        var sr = currentStone.GetComponent<SpriteRenderer>();
         if (sr != null && sr.sprite != null)
         {
             float nativeWidth = sr.sprite.bounds.size.x;
-            float desiredWorldWidth = StackManager.Instance != null
-                ? StackManager.Instance.NextStoneWidth
-                : 1f;
-
+            float desiredWorldWidth = StackManager.Instance != null ? StackManager.Instance.NextStoneWidth : 1f;
             if (nativeWidth > 0.001f)
             {
                 float k = desiredWorldWidth / nativeWidth;
@@ -98,8 +91,8 @@ public class DropperController : MonoBehaviour
             }
         }
 
-        // Fix collider after scaling
-        BoxCollider2D col = currentStone.GetComponent<BoxCollider2D>();
+        // update collider to match scale
+        var col = currentStone.GetComponent<BoxCollider2D>();
         if (sr != null && col != null)
         {
             var ls = currentStone.transform.localScale;
@@ -107,56 +100,54 @@ public class DropperController : MonoBehaviour
             col.offset = Vector2.zero;
         }
 
-        Rigidbody2D rb = currentStone.GetComponent<Rigidbody2D>();
+        var rb = currentStone.GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = false;
 
-        FallingObject fo = currentStone.GetComponent<FallingObject>();
-        if (fo != null)
-            fo.OnPlaced += OnStonePlaced;
+        var fo = currentStone.GetComponent<FallingObject>();
+        if (fo != null) fo.OnPlaced += OnStonePlaced;
     }
 
     public void SpawnNextStoneDelayed(float delay)
     {
         StartCoroutine(SpawnNextAfterDelay(delay));
     }
-
     private IEnumerator SpawnNextAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         SpawnStone();
     }
 
-    // ----------------------------------------------------------
-    // DROP SYSTEM
-    // ----------------------------------------------------------
     void DropCurrent()
     {
         if (!currentStone) return;
 
-        var rb = currentStone.GetComponent<Rigidbody2D>();
+        GameObject fallingStone = currentStone;   // store reference before nulling it
+
+        var rb = fallingStone.GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = true;
 
-        currentStone.transform.parent = null;
+        fallingStone.transform.parent = null;
         GameManager.Instance?.OnDrop();
+
+        // Now pass correct stone reference
+        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(currentStone));
+
         currentStone = null;
     }
+
 
     private void OnStonePlaced(GameObject stone)
     {
         StackManager.Instance.RegisterPlacedStone(stone);
 
-        FallingObject fo = stone.GetComponent<FallingObject>();
-        if (fo != null)
-            fo.OnPlaced -= OnStonePlaced;
+        var fo = stone.GetComponent<FallingObject>();
+        if (fo != null) fo.OnPlaced -= OnStonePlaced;
     }
 
-    // ----------------------------------------------------------
-    // SKINS
-    // ----------------------------------------------------------
+    // SKIN API
     public void SetStoneSkin(Sprite newSkin)
     {
         currentStoneSkin = newSkin;
-
         if (currentStone != null)
         {
             var sr = currentStone.GetComponent<SpriteRenderer>();

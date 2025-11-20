@@ -5,7 +5,7 @@ using UnityEngine;
 public class FallingObject : MonoBehaviour
 {
     public float sleepVelocityThreshold = 0.05f;
-    public float settleTime = 0.2f; // time under threshold to be considered settled
+    public float settleTime = 0.2f;
     private float _timer;
     private Rigidbody2D rb;
     private bool placed = false;
@@ -15,13 +15,12 @@ public class FallingObject : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.simulated = false; // start off non-simulated until dropped
+        rb.simulated = false;
     }
 
     void FixedUpdate()
     {
         if (placed) return;
-
         if (!rb.simulated) return;
 
         if (rb.linearVelocity.sqrMagnitude < sleepVelocityThreshold * sleepVelocityThreshold)
@@ -30,13 +29,9 @@ public class FallingObject : MonoBehaviour
             if (_timer >= settleTime)
             {
                 placed = true;
-
-                // Stop motion and freeze
                 rb.linearVelocity = Vector2.zero;
                 rb.angularVelocity = 0f;
                 rb.bodyType = RigidbodyType2D.Static;
-
-                // fire event once
                 OnPlaced?.Invoke(gameObject);
             }
         }
@@ -46,17 +41,13 @@ public class FallingObject : MonoBehaviour
         }
     }
 
-    // Optional: call externally to force placed (useful for debugging)
     public void ForcePlace()
     {
         if (placed) return;
         placed = true;
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-            rb.bodyType = RigidbodyType2D.Static;
-        }
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.bodyType = RigidbodyType2D.Static;
         OnPlaced?.Invoke(gameObject);
     }
 }
