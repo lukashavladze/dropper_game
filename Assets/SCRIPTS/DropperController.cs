@@ -10,8 +10,10 @@ public class DropperController : MonoBehaviour
     public float baseSpeed = 5f;
     public float speedIncreasePerLevel = 1.5f;
 
+    public float CurrentSpeed => moveSpeed;
+
     private GameObject currentStone;
-    public GameObject CurrentStone => currentStone; // safe public getter
+    public GameObject CurrentStone => currentStone;
 
     private int direction = 1;
     public static DropperController Instance;
@@ -41,12 +43,10 @@ public class DropperController : MonoBehaviour
 
         Move();
 
-        // Ignore input if clicking on UI
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            return;
+        // Ignore input if over UI
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
-        if (Input.GetMouseButtonDown(0) ||
-           (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began))
+        if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began))
         {
             DropCurrent();
         }
@@ -55,6 +55,11 @@ public class DropperController : MonoBehaviour
     public void UpdateSpeed(int level)
     {
         moveSpeed = baseSpeed + (level - 1) * speedIncreasePerLevel;
+    }
+
+    public void SetSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
     }
 
     void Move()
@@ -70,9 +75,12 @@ public class DropperController : MonoBehaviour
 
     public void SpawnStone()
     {
+        // Safety: don't spawn if there is an active stone already
+        if (currentStone != null) return;
+
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
 
-        // apply selected skin
+        // Apply skin if set
         if (currentStoneSkin != null)
         {
             var sr2 = currentStone.GetComponent<SpriteRenderer>();
@@ -91,7 +99,6 @@ public class DropperController : MonoBehaviour
             }
         }
 
-        // update collider to match scale
         var col = currentStone.GetComponent<BoxCollider2D>();
         if (sr != null && col != null)
         {
@@ -114,27 +121,31 @@ public class DropperController : MonoBehaviour
     private IEnumerator SpawnNextAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        SpawnStone();
+        if (currentStone == null) SpawnStone();
     }
 
     void DropCurrent()
     {
         if (!currentStone) return;
 
-        GameObject fallingStone = currentStone;   // store reference before nulling it
+        GameObject fallingStone = currentStone; // keep reference
 
         var rb = fallingStone.GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = true;
 
         fallingStone.transform.parent = null;
+
         GameManager.Instance?.OnDrop();
 
-        // Now pass correct stone reference
-        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(currentStone));
+        // Register watcher that will call immediate game-over if it falls too low
+        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(fallingStone));
 
+        // Clear the current stone so SpawnNextAfterDelay can create next
         currentStone = null;
-    }
 
+        // Ensure next stone will appear after a short delay
+        StartCoroutine(SpawnNextAfterDelay(0.8f));
+    }
 
     private void OnStonePlaced(GameObject stone)
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,10 +19,8 @@ public class StackManager : MonoBehaviour
     private float platformY;
 
     [Header("Game Over / Live check settings")]
-    [Tooltip("If true, a falling stone must also be horizontally non-overlapping to trigger game over.")]
-    public bool requireHorizontalOverlapForGameOver = false; // default false as you asked
-    [Tooltip("How much below the last placed stone (world units) the falling stone must pass to trigger game over.")]
-    public float gameOverVerticalMargin = 0.02f; // small margin to avoid immediate trigger on contact
+    public bool requireHorizontalOverlapForGameOver = false;
+    public float gameOverVerticalMargin = 0.02f;
 
     public float NextStoneWidth { get; private set; }
 
@@ -40,35 +37,29 @@ public class StackManager : MonoBehaviour
         if (platform != null)
         {
             var sr = platform.GetComponent<SpriteRenderer>();
-            platformY = platform.transform.position.y + (sr.bounds.size.y * 0.5f);
+            platformY = platform.transform.position.y + (sr != null ? sr.bounds.size.y * 0.5f : 0.5f);
         }
     }
 
-    // Called by DropperController when a stone finishes settling
     public void RegisterPlacedStone(GameObject stone)
     {
         StartCoroutine(CheckPlacementNextFrame(stone));
     }
 
-
-    // -------------------------
-    // LIVE GAME-OVER CHECK
-    // -------------------------
     void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
-        if (stack.Count == 0) return; // no placed stone yet -> no live fail
-
+        if (stack.Count == 0) return;
         if (DropperController.Instance == null) return;
+
         GameObject falling = DropperController.Instance.CurrentStone;
-        if (falling == null) return; // nothing currently falling / held
+        if (falling == null) return;
 
         Rigidbody2D rb = falling.GetComponent<Rigidbody2D>();
         if (rb == null) return;
 
-        // only check when actually simulated & falling down
         if (!rb.simulated) return;
-        if (rb.linearVelocity.y >= 0f) return; // only while moving downward
+        if (rb.linearVelocity.y >= 0f) return;
 
         var srFall = falling.GetComponent<SpriteRenderer>();
         var lastPlaced = stack[stack.Count - 1];
@@ -77,14 +68,28 @@ public class StackManager : MonoBehaviour
 
         float fallingBottom = falling.transform.position.y - srFall.bounds.size.y * 0.5f;
         float lastTop = lastPlaced.transform.position.y + srLast.bounds.size.y * 0.5f;
+
+        if (fallingBottom < lastTop - gameOverVerticalMargin)
+        {
+            if (requireHorizontalOverlapForGameOver)
+            {
+                float fallHalfW = srFall.bounds.size.x * 0.5f;
+                float lastHalfW = srLast.bounds.size.x * 0.5f;
+                float dx = Mathf.Abs(falling.transform.position.x - lastPlaced.transform.position.x);
+                float horizOverlap = (fallHalfW + lastHalfW) - dx;
+                if (horizOverlap <= 0f)
+                    GameManager.Instance.OnMiss(falling);
+            }
+            else
+            {
+                GameManager.Instance.OnMiss(falling);
+            }
+        }
     }
 
-    // -------------------------
-    // Placement check (called after FallingObject signals it settled)
-    // -------------------------
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
     {
-        yield return null; // wait a frame so sprite bounds & physics are stable
+        yield return null;
         if (stone == null) yield break;
 
         Rigidbody2D rb = stone.GetComponent<Rigidbody2D>();
@@ -94,7 +99,7 @@ public class StackManager : MonoBehaviour
         float stoneWidth = sr.bounds.size.x;
         float stoneHeight = sr.bounds.size.y;
 
-        // FIRST STONE: must land near platform
+        // FIRST STONE
         if (stack.Count == 0)
         {
             GameObject platform = GameObject.FindGameObjectWithTag("Platform");
@@ -105,22 +110,22 @@ public class StackManager : MonoBehaviour
                 ? platform.GetComponent<SpriteRenderer>().bounds.size.y * 0.5f
                 : 0.5f);
 
-            // small tolerance: if stone didn't actually land on platform -> miss
             if (Mathf.Abs(stoneBottom - platformTop) > 0.4f)
             {
                 GameManager.Instance?.OnMiss(stone);
                 yield break;
             }
 
-            // good first placement
             rb.bodyType = RigidbodyType2D.Static;
             stack.Add(stone);
             GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
+
+            // ensure next stone spawns
             DropperController.Instance?.SpawnNextStoneDelayed(0.1f);
             yield break;
         }
 
-        // LATER STONES: compare to top
+        // LATER STONES
         GameObject top = stack[stack.Count - 1];
         var topSR = top.GetComponent<SpriteRenderer>();
         if (topSR == null) { GameManager.Instance?.OnMiss(stone); yield break; }
@@ -131,7 +136,6 @@ public class StackManager : MonoBehaviour
         float dx = stone.transform.position.x - top.transform.position.x;
         float absDx = Mathf.Abs(dx);
 
-        // overlap test
         float overlap = (topWidth * 0.5f + stoneWidth * 0.5f) - absDx;
         if (overlap <= 0f)
         {
@@ -145,13 +149,11 @@ public class StackManager : MonoBehaviour
         float topTop = top.transform.position.y + topHeight * 0.5f;
         stone.transform.position = new Vector3(top.transform.position.x, topTop + stoneHeight * 0.5f, stone.transform.position.z);
 
-        // freeze stone
+        // freeze stone and add
         rb.bodyType = RigidbodyType2D.Static;
-
-        // add to stack
         stack.Add(stone);
 
-        // width logic: fixed shrink/widen applied to BOTH placed stone and previous top (per request)
+        // width logic
         if (isPerfect)
         {
             float newWidth = Mathf.Clamp(NextStoneWidth + fixedWiden, minStoneWidth, originalStoneWidth);
@@ -172,6 +174,7 @@ public class StackManager : MonoBehaviour
             GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
         }
 
+        // ensure next spawn (safety)
         DropperController.Instance?.SpawnNextStoneDelayed(0.08f);
     }
 
@@ -200,20 +203,17 @@ public class StackManager : MonoBehaviour
         var sr = stone.GetComponent<SpriteRenderer>();
         if (sr == null || sr.sprite == null) return;
 
-        // sprite native width (bounds at scale = 1)
         float nativeWidth = sr.sprite.bounds.size.x;
         if (nativeWidth <= 0.0001f) return;
 
         float newScaleX = targetWorldWidth / nativeWidth;
-        float keepY = stone.transform.localScale.y; // preserve height scale
+        float keepY = stone.transform.localScale.y;
 
         stone.transform.localScale = new Vector3(newScaleX, keepY, 1f);
 
-        // update collider (BoxCollider2D) if present
         var col = stone.GetComponent<BoxCollider2D>();
         if (col != null)
         {
-            // sr.bounds now represents world size after scale, so compute local size
             var ls = stone.transform.localScale;
             float worldW = sr.bounds.size.x;
             float worldH = sr.bounds.size.y;
@@ -222,7 +222,6 @@ public class StackManager : MonoBehaviour
         }
     }
 
-    // optional helpers if you need them elsewhere
     public GameObject GetLastStone() => stack.Count == 0 ? null : stack[stack.Count - 1];
     public int GetStackCount() => stack.Count;
 }

@@ -15,6 +15,8 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance;
 
+    public Text LevelUpText;
+
 
 
     void Start()
@@ -28,6 +30,19 @@ public class UIManager : MonoBehaviour
         Instance = this;
         if (perfectText != null)
             perfectText.gameObject.SetActive(false);
+    }
+
+    public void ShowLevelUp(int level)
+    {
+        LevelUpText.text = "LEVEL " + level;
+        LevelUpText.gameObject.SetActive(true);
+        CancelInvoke(nameof(HideLevelUp));
+        Invoke(nameof(HideLevelUp), 1.2f);
+    }
+
+    void HideLevelUp()
+    {
+        LevelUpText.gameObject.SetActive(false);
     }
 
     public void ShowPerfectText()
