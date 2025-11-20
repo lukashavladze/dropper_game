@@ -1,10 +1,8 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
-using Firebase;
 using Firebase.Auth;
 using Google;
-using System;
 
 public class GoogleLogin : MonoBehaviour
 {
@@ -24,44 +22,51 @@ public class GoogleLogin : MonoBehaviour
     private IEnumerator GoogleSignInRoutine()
     {
 #if UNITY_ANDROID
-    string clientId = "268879827526-4v51plsbmg4qs5e70gir9qs46sp3ivlv.apps.googleusercontent.com";
-        
-    GoogleSignInConfiguration config = new GoogleSignInConfiguration
-    {
-        WebClientId = clientId,
-        RequestEmail = true,
-        RequestIdToken = true
-    };
+        Debug.Log("GoogleSignInRoutine STARTED on ANDROID");
 
-    GoogleSignIn.Configuration = config;
+        string clientId = "268879827526-4v51plsbmg4qs5e70gir9qs46sp3ivlv.apps.googleusercontent.com";
 
-    Task<GoogleSignInUser> signInTask = GoogleSignIn.DefaultInstance.SignIn();
+        GoogleSignInConfiguration config = new GoogleSignInConfiguration
+        {
+            WebClientId = clientId,
+            RequestEmail = true,
+            RequestIdToken = true
+        };
 
-    while (!signInTask.IsCompleted)
-        yield return null;
+        GoogleSignIn.Configuration = config;
 
-    if (signInTask.IsCanceled || signInTask.IsFaulted)
-    {
-        Debug.LogError("Google Sign-In Failed");
+        Task<GoogleSignInUser> signInTask = GoogleSignIn.DefaultInstance.SignIn();
+
+        // Wait for Google popup to finish
+        while (!signInTask.IsCompleted)
+            yield return null;
+
+        if (signInTask.IsCanceled || signInTask.IsFaulted)
+        {
+            Debug.LogError("Google Sign-In Failed");
+            yield break;     // safe exit
+        }
+
+        GoogleSignInUser googleUser = signInTask.Result;
+
+        Credential credential =
+            GoogleAuthProvider.GetCredential(googleUser.IdToken, null);
+
+        var authTask = auth.SignInWithCredentialAsync(credential);
+
+        while (!authTask.IsCompleted)
+            yield return null;
+
+        if (authTask.IsCompletedSuccessfully)
+        {
+            Debug.Log("SIGNED IN as: " + auth.CurrentUser.Email);
+        }
+
         yield break;
-    }
-
-    GoogleSignInUser googleUser = signInTask.Result;
-
-    Credential credential = GoogleAuthProvider.GetCredential(googleUser.IdToken, null);
-
-    var authTask = auth.SignInWithCredentialAsync(credential);
-
-    while (!authTask.IsCompleted)
-        yield return null;
-
-    if (authTask.IsCompletedSuccessfully)
-    {
-        Debug.Log("Signed in: " + auth.CurrentUser.Email);
-    }
+#else
+        Debug.LogWarning("Google Sign-In does NOT work in Unity Editor or PC.");
+        Debug.LogWarning("Run on ANDROID device to test.");
+        yield break;    // This is now reachable → NO warnings
 #endif
-
-        // <-- This fixes your error!
-        yield break;
     }
 }

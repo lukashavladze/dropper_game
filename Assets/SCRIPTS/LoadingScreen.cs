@@ -11,7 +11,8 @@ public class LoadingScreen : MonoBehaviour
     void Start()
     {
         // Always load Menu at game start
-        SceneToLoad.nextScene = "loginScene";
+        //SceneToLoad.nextScene = "loginScene";
+        SceneToLoad.nextScene = "menu";
         StartCoroutine(LoadAsync());
     }
 

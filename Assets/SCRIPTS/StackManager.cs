@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
+using UnityEngine;
 using System;
 
 public class StackManager : MonoBehaviour
@@ -10,21 +9,32 @@ public class StackManager : MonoBehaviour
 
     private List<GameObject> stack = new List<GameObject>();
 
-    [Header("Stacking Settings")]
-    public float allowedXError = 1.2f;   // X offset tolerance for stacking
-    public float allowedYError = 0.4f;   // Y distance tolerance from platform for first stone
-    public float overlapRadius = 1.0f;   // radius used to detect platform contact
+    [Header("Stone Width Rules")]
+    public float originalStoneWidth = 1.0f;
+    public float minStoneWidth = 0.1f;
+    public float perfectThreshold = 0.02f;
 
-    private float platformY;
+    public float fixedShrink = 0.1f;
+    public float fixedWiden = 0.1f;
+
+    [Header("Placement Check")]
+    public float overlapRadius = 0.2f;
+    public float verticalTolerance = 0.5f;
+
+    public float NextStoneWidth { get; private set; }
+
+    private float platformY = 0f;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance != this && Instance != null)
         {
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
+        NextStoneWidth = originalStoneWidth;
     }
 
     void Start()
@@ -34,9 +44,6 @@ public class StackManager : MonoBehaviour
             platformY = platform.transform.position.y;
     }
 
-    /// <summary>
-    /// Called when a stone finishes falling (from FallingObject).
-    /// </summary>
     public void RegisterPlacedStone(GameObject stone)
     {
         StartCoroutine(CheckPlacementNextFrame(stone));
@@ -44,184 +51,155 @@ public class StackManager : MonoBehaviour
 
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
     {
-        yield return null; // Wait one frame for physics to settle
+        yield return null;
+        if (stone == null) yield break;
+
+        var rb = stone.GetComponent<Rigidbody2D>();
+        var sr = stone.GetComponent<SpriteRenderer>();
+        if (!rb || !sr) yield break;
+
+        float stoneWidth = sr.bounds.size.x;
+        float stoneHeight = sr.bounds.size.y;
 
         bool success = false;
         bool isPerfectPlacement = false;
 
-        var rb = stone.GetComponent<Rigidbody2D>();
-        if (rb == null)
-            yield break;
-
-        // Get sprite bounds (safer than just using transform.localScale)
-        var spriteRenderer = stone.GetComponent<SpriteRenderer>();
-        float stoneHeight = spriteRenderer != null ? spriteRenderer.bounds.size.y : stone.transform.localScale.y;
-        float stoneWidth = spriteRenderer != null ? spriteRenderer.bounds.size.x : stone.transform.localScale.x;
-
-        // === FIRST STONE (check platform contact) ===
+        // FIRST STONE
         if (stack.Count == 0)
         {
-            Vector2 checkPos = stone.transform.position + Vector3.down * (stoneHeight * 0.5f + 0.05f);
+            Vector2 checkPos = (Vector2)stone.transform.position + Vector2.down * (stoneHeight / 2 + 0.05f);
             Collider2D[] hits = Physics2D.OverlapCircleAll(checkPos, overlapRadius);
 
-            foreach (var c in hits)
+            foreach (var h in hits)
             {
-                if (c.gameObject == stone) continue;
-                if (c.CompareTag("Platform"))
-                {
-                    float yDiff = Mathf.Abs(c.transform.position.y - stone.transform.position.y);
-                    if (yDiff < allowedYError + 1f)
-                    {
-                        success = true;
-                        break;
-                    }
-                }
+                if (h.CompareTag("Platform"))
+                    success = true;
             }
 
-            if (success)
-            {
-                var platform = hits.FirstOrDefault(h => h.CompareTag("Platform"));
-                if (platform)
-                {
-                    // Align perfectly on top of platform
-                    float platformTop = platform.transform.position.y + platform.transform.localScale.y / 2f;
-                    Vector3 alignedPos = stone.transform.position;
-                    alignedPos.y = platformTop + stoneHeight / 2f;
-                    stone.transform.position = alignedPos;
-                }
-
-                stack.Add(stone);
-                GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
-            }
-            else
+            if (!success)
             {
                 GameManager.Instance?.OnMiss(stone);
+                yield break;
             }
+
+            // snap on platform
+            rb.bodyType = RigidbodyType2D.Static;
+            stack.Add(stone);
+
+            GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
+
+            DropperController.Instance?.SpawnNextStoneDelayed(0.1f);
+            yield break;
         }
+
+        // OTHER STONES
+        GameObject top = stack[stack.Count - 1];
+        var topSR = top.GetComponent<SpriteRenderer>();
+
+        float topWidth = topSR.bounds.size.x;
+        float topHeight = topSR.bounds.size.y;
+
+        float dx = stone.transform.position.x - top.transform.position.x;
+        float absDx = Mathf.Abs(dx);
+        float dy = stone.transform.position.y - top.transform.position.y;
+
+        bool verticallyOK = dy > -0.05f && dy < topHeight * 2f;
+
+        float overlap = (topWidth / 2 + stoneWidth / 2) - absDx;
+
+        if (!verticallyOK || overlap <= 0f)
+        {
+            GameManager.Instance?.OnMiss(stone);
+            yield break;
+        }
+
+        success = true;
+
+        if (absDx <= perfectThreshold)
+            isPerfectPlacement = true;
+
+        // snap on top
+        Vector3 pos = stone.transform.position;
+        pos.x = top.transform.position.x;
+        pos.y = top.transform.position.y + topHeight / 2 + stoneHeight / 2;
+        stone.transform.position = pos;
+
+        stack.Add(stone);
+
+        // --------------------------
+        // PERFECT PLACEMENT → WIDEN
+        // --------------------------
+        if (isPerfectPlacement)
+        {
+            float newWidth = Mathf.Clamp(NextStoneWidth + fixedWiden, minStoneWidth, originalStoneWidth);
+
+            // current placed stone
+            ApplyWidthToStone(stone, newWidth);
+
+            // previous stone (optional widening)
+            ApplyWidthToStone(top, newWidth);
+
+            NextStoneWidth = newWidth;
+
+            GameManager.Instance?.OnPerfectPlacement(stack.Count, stone);
+            UIManager.Instance?.ShowPerfectText();
+        }
+        // --------------------------
+        // NOT PERFECT → SHRINK
+        // --------------------------
         else
         {
-            // === SUBSEQUENT STONES (check alignment with previous stone) ===
-            var top = stack[stack.Count - 1];
-            var topRenderer = top.GetComponent<SpriteRenderer>();
+            float newWidth = Mathf.Clamp(NextStoneWidth - fixedShrink, minStoneWidth, originalStoneWidth);
 
-            float topHeight = topRenderer != null ? topRenderer.bounds.size.y : top.transform.localScale.y;
-            float topWidth = topRenderer != null ? topRenderer.bounds.size.x : top.transform.localScale.x;
+            // shrink placed stone
+            ApplyWidthToStone(stone, newWidth);
 
-            float dx = Mathf.Abs(stone.transform.position.x - top.transform.position.x);
-            float dy = stone.transform.position.y - top.transform.position.y;
+            // shrink previous stone too
+            ApplyWidthToStone(top, newWidth);
 
-            bool horizontallyAligned = dx < topWidth * 0.5f;
-            bool verticallyOnTop = dy > 0 && dy < topHeight * 1.5f;
+            NextStoneWidth = newWidth;
 
-            if (horizontallyAligned && verticallyOnTop)
-            {
-                success = true;
-
-                // === Perfect placement bonus ===
-                float perfectThreshold = topWidth * 0.1f; // 10% margin
-                if (dx <= perfectThreshold)
-                    isPerfectPlacement = true;
-
-                // Snap perfectly on top
-                Vector3 alignedPos = stone.transform.position;
-                alignedPos.x = top.transform.position.x;
-                alignedPos.y = top.transform.position.y + (topHeight / 2f) + (stoneHeight / 2f);
-                stone.transform.position = alignedPos;
-
-                stack.Add(stone);
-
-                if (isPerfectPlacement)
-                {
-                    GameManager.Instance?.OnPerfectPlacement(stack.Count, stone);
-                    StartCoroutine(PopStoneEffect(stone));
-                    UIManager.Instance?.ShowPerfectText();
-                }
-                else
-                {
-                    GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
-                }
-            }
-            else
-            {
-                GameManager.Instance?.OnMiss(stone);
-            }
+            GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
         }
 
-        // === Stop physics after placement ===
-        if (success && rb.bodyType != RigidbodyType2D.Static)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-            rb.bodyType = RigidbodyType2D.Static;
-        }
+        // freeze physics
+        rb.bodyType = RigidbodyType2D.Static;
+
+        // spawn next
+        DropperController.Instance?.SpawnNextStoneDelayed(0.08f);
     }
 
-
-
-    public IEnumerator CheckMissWhileFalling(GameObject stone)
+    // FIX: Scale only X. Keep Y untouched.
+    private void ApplyWidthToStone(GameObject stone, float targetWorldWidth)
     {
-        // If this is the very first stone, compare with the platform height
-        float referenceY = (stack.Count == 0)
-        ? platformY // you can set this to your platform’s Y in Start()
-            : stack[stack.Count - 1].transform.position.y;
+        if (!stone) return;
 
-        // Keep checking until game over or stone stops
-        while (stone != null)
+        var sr = stone.GetComponent<SpriteRenderer>();
+        if (!sr || !sr.sprite) return;
+
+        float spriteNativeWidth = sr.sprite.bounds.size.x;
+
+        float newScaleX = targetWorldWidth / spriteNativeWidth;
+        float retainedScaleY = stone.transform.localScale.y; // DO NOT CHANGE HEIGHT
+
+        stone.transform.localScale = new Vector3(newScaleX, retainedScaleY, 1f);
+
+        // collider
+        var col = stone.GetComponent<BoxCollider2D>();
+        if (col)
         {
-            if (stone.transform.position.y < referenceY - 1f) // 1f = tolerance below last stone
-            {
-                Debug.Log("❌ Stone fell below stack — instant game over");
-                GameManager.Instance?.OnMiss(stone);
-                yield break; // stop checking further
-            }
-
-            yield return null;
+            float finalW = sr.bounds.size.x;
+            float finalH = sr.bounds.size.y;
+            col.size = new Vector2(finalW / newScaleX, finalH / retainedScaleY);
         }
     }
 
-
-
-    public int GetStackCount() => stack.Count;
-
-    /// <summary>
-    /// Destroys all stacked stones and clears the list.
-    /// </summary>
     public void ResetStack()
     {
-        foreach (var s in stack)
-        {
-            if (s) Destroy(s);
-        }
+        foreach (var o in stack)
+            if (o) Destroy(o);
+
         stack.Clear();
-    }
-
-
-    private IEnumerator PopStoneEffect(GameObject stone)
-    {
-        if (stone == null) yield break;
-
-        Vector3 originalScale = stone.transform.localScale;
-        Vector3 popScale = originalScale * 1.2f; // Slightly larger
-        float duration = 0.15f;
-        float t = 0f;
-
-        // Scale up
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            stone.transform.localScale = Vector3.Lerp(originalScale, popScale, t / duration);
-            yield return null;
-        }
-
-        // Scale back down
-        t = 0f;
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            stone.transform.localScale = Vector3.Lerp(popScale, originalScale, t / duration);
-            yield return null;
-        }
-
-        stone.transform.localScale = originalScale;
+        NextStoneWidth = originalStoneWidth;
     }
 }

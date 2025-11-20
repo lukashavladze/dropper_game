@@ -51,7 +51,9 @@ public class InventoryUIInitializer : MonoBehaviour
         else
         {
             // fallback: find all visible slot components in scene
-            slotButtons = FindObjectsOfType<InventoryItemButton>(true);
+            slotButtons = UnityEngine.Object.FindObjectsByType<InventoryItemButton>(
+    FindObjectsSortMode.None
+);
         }
 
         // If inspector fields are null, try to find them by name (best effort)

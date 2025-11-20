@@ -2,73 +2,50 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-
 public class DropperController : MonoBehaviour
 {
-    public GameObject stonePrefab; // assign prefab
-    public Transform spawnPoint; // where stones are created
-    public float speed = 3f; // horizontal movement speed
-    public float leftX = -5f, rightX = 5f; // bounds
-    public float speedIncreasePerLevel = 1.5f;
-    public float moveSpeed = 5f;
+    public GameObject stonePrefab;
+    public Transform spawnPoint;
+    public float leftX = -5f, rightX = 5f;
     public float baseSpeed = 5f;
-
+    public float speedIncreasePerLevel = 1.5f;
 
     private GameObject currentStone;
     private int direction = 1;
     public static DropperController Instance;
 
-    // public SpriteRenderer dropperSpriteRenderer;
-
     public Sprite currentStoneSkin;
+    private float moveSpeed;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
+        Instance = this;
     }
 
     void Start()
     {
-        // If a skin was selected in the menu, use it
-        if (SkinSelection.SelectedStoneSkin != null)
-        {
-            SetStoneSkin(SkinSelection.SelectedStoneSkin);
-            Debug.Log("Applied selected stone skin: " + SkinSelection.SelectedStoneSkin.name);
-        }
+        moveSpeed = baseSpeed;
 
-        // spawn the first stone
+        if (SkinSelection.SelectedStoneSkin != null)
+            SetStoneSkin(SkinSelection.SelectedStoneSkin);
+
         SpawnStone();
     }
 
-
-    //public void SetDropperSprite(Sprite sprite)
-    //{
-    //    if (dropperSpriteRenderer != null && sprite != null)
-    //    {
-    //        dropperSpriteRenderer.sprite = sprite;
-    //        Debug.Log("Dropper skin changed to: " + sprite.name);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogWarning("DropperController: dropperSpriteRenderer or sprite is null!");
-    //    }
-    //}
-
-
-
-
     void Update()
     {
-        if (GameManager.Instance != null && GameManager.Instance.isGameOver || PauseManager.IsPaused)
-            return; // stop all dropper behavior
+        var gm = GameManager.Instance;
+        if (gm != null && gm.isGameOver) return;
+        if (PauseManager.IsPaused) return;
 
         Move();
 
-        // Ignore input if clicking on UI (pause button etc.)
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        if (EventSystem.current != null &&
+            EventSystem.current.IsPointerOverGameObject())
             return;
 
-        if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
+        if (Input.GetMouseButtonDown(0) ||
+           (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began))
         {
             DropCurrent();
         }
@@ -77,112 +54,107 @@ public class DropperController : MonoBehaviour
     public void UpdateSpeed(int level)
     {
         moveSpeed = baseSpeed + (level - 1) * speedIncreasePerLevel;
-        Debug.Log($"Dropper speed updated to {moveSpeed} at level {level}");
     }
-
 
     void Move()
     {
         float move = moveSpeed * Time.deltaTime;
-        //transform.position += Vector3.right * direction * speed * Time.deltaTime;
         transform.position += Vector3.right * direction * move;
-        if (transform.position.x > rightX) { direction = -1; }
-        if (transform.position.x < leftX) { direction = 1; }
-        if (currentStone) // follow dropper
-        {
+
+        if (transform.position.x > rightX) direction = -1;
+        if (transform.position.x < leftX) direction = 1;
+
+        if (currentStone)
             currentStone.transform.position = spawnPoint.position;
-        }
     }
 
-    void SpawnStone()
+    // ----------------------------------------------------------
+    //          SPAWN SYSTEM
+    // ----------------------------------------------------------
+    public void SpawnStone()
     {
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
 
-        // Always apply the selected skin here
-        var sr = currentStone.GetComponent<SpriteRenderer>();
-        if (sr != null && currentStoneSkin != null)
+        SpriteRenderer sr = currentStone.GetComponent<SpriteRenderer>();
+        if (sr != null && sr.sprite != null)
         {
-            sr.sprite = currentStoneSkin;  // <- this ensures the new stone gets the selected sprite
+            float nativeWidth = sr.sprite.bounds.size.x;
+            float desiredWorldWidth = StackManager.Instance != null
+                ? StackManager.Instance.NextStoneWidth
+                : 1f;
+
+            if (nativeWidth > 0.001f)
+            {
+                float k = desiredWorldWidth / nativeWidth;
+                currentStone.transform.localScale = new Vector3(k, k, 1f);
+            }
         }
 
-        // Collider adjustment
-        var col = currentStone.GetComponent<BoxCollider2D>();
+        // Fix collider after scaling
+        BoxCollider2D col = currentStone.GetComponent<BoxCollider2D>();
         if (sr != null && col != null)
         {
-            col.size = sr.bounds.size / currentStone.transform.localScale.x;
+            var ls = currentStone.transform.localScale;
+            col.size = new Vector2(sr.bounds.size.x / ls.x, sr.bounds.size.y / ls.y);
             col.offset = Vector2.zero;
         }
 
-        // Disable physics until drop
-        var rb = currentStone.GetComponent<Rigidbody2D>();
+        // RigidBody off until dropped
+        Rigidbody2D rb = currentStone.GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = false;
 
-        var fo = currentStone.GetComponent<FallingObject>();
+        // Subscribe to placement event
+        FallingObject fo = currentStone.GetComponent<FallingObject>();
         if (fo != null)
             fo.OnPlaced += OnStonePlaced;
     }
 
-
-    // to spawn stone not instantly but after 0.8 sec delay
-    void DropCurrent()
+    public void SpawnNextStoneDelayed(float delay)
     {
-        if (!currentStone) return;
-
-        GameObject fallingStone = currentStone;
-        var rb = fallingStone.GetComponent<Rigidbody2D>();
-        rb.simulated = true;
-
-        // Detach the falling stone so the next spawn can move independently
-        fallingStone.transform.parent = null;
-
-        // Notify game manager that drop happened
-        GameManager.Instance.OnDrop();
-
-        // Start checking for misses using the falling stone reference
-        StartCoroutine(StackManager.Instance.CheckMissWhileFalling(fallingStone));
-
-        // Clear the reference now that it's dropped
-        currentStone = null;
-
-        // ✅ Spawn after 0.8s delay (this is the correct place)
-        StartCoroutine(SpawnNextAfterDelay(0.8f));
-    }
-
-
-
-    void OnStonePlaced(GameObject stone)
-    {
-        // forwarded from FallingObject when it settles
-        StackManager.Instance.RegisterPlacedStone(stone);
+        StartCoroutine(SpawnNextAfterDelay(delay));
     }
 
     private IEnumerator SpawnNextAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        SpawnStone(); // <-- call your actual spawn function name here
+        SpawnStone();
     }
 
+    // ----------------------------------------------------------
+    //          DROP SYSTEM
+    // ----------------------------------------------------------
+    void DropCurrent()
+    {
+        if (!currentStone) return;
+
+        var rb = currentStone.GetComponent<Rigidbody2D>();
+        if (rb != null) rb.simulated = true;
+
+        currentStone.transform.parent = null;
+        GameManager.Instance?.OnDrop();
+        currentStone = null; // clear reference
+    }
+
+    private void OnStonePlaced(GameObject stone)
+    {
+        StackManager.Instance.RegisterPlacedStone(stone);
+
+        FallingObject fo = stone.GetComponent<FallingObject>();
+        if (fo != null)
+            fo.OnPlaced -= OnStonePlaced; // prevent double-calls
+    }
+
+    // ----------------------------------------------------------
+    //          SKINS
+    // ----------------------------------------------------------
     public void SetStoneSkin(Sprite newSkin)
     {
-        currentStoneSkin = newSkin; // store selection for future stones
+        currentStoneSkin = newSkin;
 
-        // Apply to currently spawned stone if exists
         if (currentStone != null)
         {
             var sr = currentStone.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.sprite = newSkin;
-                Debug.Log("Current stone sprite updated: " + newSkin.name);
-            }
+            if (sr != null) sr.sprite = newSkin;
         }
-
-        Debug.Log("DropperController: Stone skin set to " + newSkin.name);
     }
-
-    public Sprite GetCurrentStoneSkin()
-    {
-        return currentStoneSkin;
-    }
-
 }
