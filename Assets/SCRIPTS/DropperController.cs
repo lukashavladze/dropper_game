@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿// Updated DropperController with correct skin application to spawned stones
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -69,11 +70,18 @@ public class DropperController : MonoBehaviour
     }
 
     // ----------------------------------------------------------
-    //          SPAWN SYSTEM
+    // SPAWN SYSTEM
     // ----------------------------------------------------------
     public void SpawnStone()
     {
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
+
+        // Apply selected skin immediately
+        if (currentStoneSkin != null)
+        {
+            var sr2 = currentStone.GetComponent<SpriteRenderer>();
+            if (sr2 != null) sr2.sprite = currentStoneSkin;
+        }
 
         SpriteRenderer sr = currentStone.GetComponent<SpriteRenderer>();
         if (sr != null && sr.sprite != null)
@@ -99,11 +107,9 @@ public class DropperController : MonoBehaviour
             col.offset = Vector2.zero;
         }
 
-        // RigidBody off until dropped
         Rigidbody2D rb = currentStone.GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = false;
 
-        // Subscribe to placement event
         FallingObject fo = currentStone.GetComponent<FallingObject>();
         if (fo != null)
             fo.OnPlaced += OnStonePlaced;
@@ -121,7 +127,7 @@ public class DropperController : MonoBehaviour
     }
 
     // ----------------------------------------------------------
-    //          DROP SYSTEM
+    // DROP SYSTEM
     // ----------------------------------------------------------
     void DropCurrent()
     {
@@ -132,7 +138,7 @@ public class DropperController : MonoBehaviour
 
         currentStone.transform.parent = null;
         GameManager.Instance?.OnDrop();
-        currentStone = null; // clear reference
+        currentStone = null;
     }
 
     private void OnStonePlaced(GameObject stone)
@@ -141,11 +147,11 @@ public class DropperController : MonoBehaviour
 
         FallingObject fo = stone.GetComponent<FallingObject>();
         if (fo != null)
-            fo.OnPlaced -= OnStonePlaced; // prevent double-calls
+            fo.OnPlaced -= OnStonePlaced;
     }
 
     // ----------------------------------------------------------
-    //          SKINS
+    // SKINS
     // ----------------------------------------------------------
     public void SetStoneSkin(Sprite newSkin)
     {
