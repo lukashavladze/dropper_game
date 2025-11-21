@@ -144,7 +144,7 @@ public class DropperController : MonoBehaviour
         currentStone = null;
 
         // Ensure next stone will appear after a short delay
-        StartCoroutine(SpawnNextAfterDelay(0.8f));
+        //StartCoroutine(SpawnNextAfterDelay(0.8f));
     }
 
     private void OnStonePlaced(GameObject stone)

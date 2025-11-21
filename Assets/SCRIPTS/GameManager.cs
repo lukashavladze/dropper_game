@@ -72,6 +72,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetLevel();
+            PlayerPrefs.SetInt(SaveKey_Level, 1);
+            PlayerPrefs.SetFloat(SaveKey_Speed, 5);
+            PlayerPrefs.Save();
+            Debug.Log("Level reset!");
+        }
+    }
+
+
     // small helper to avoid accidental null-call in inspector-less situations
     private void ui_manager_safe_update()
     {
@@ -136,7 +149,7 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
 
             uiManager.UpdateLevel(level);
-            uiManager.ShowLevelUp(level);
+            //uiManager.ShowLevelUp(level);  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
 
             // update speed AFTER save
             dropper.UpdateSpeed(level);
@@ -161,6 +174,7 @@ public class GameManager : MonoBehaviour
         PlaySound(perfectSound);
         AddScore(10);
 
+        // Move dropper up
         if (perfectPlacementEffect != null)
         {
             Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
@@ -178,11 +192,47 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("🌟 PERFECT PLACEMENT! Bonus +10 points");
 
-        // Save level+speed as safe write
-        PlayerPrefs.SetInt(SaveKey_Level, level);
-        PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
-        PlayerPrefs.Save();
+        // --- THIS WAS MISSING ---
+        // Perfect placement MUST ALSO count toward level progression
+        placedSinceLevel++;
+
+        if (placedSinceLevel >= BlocksPerLevel)
+        {
+            placedSinceLevel = 0;
+            level++;
+
+            // Save level immediately
+            PlayerPrefs.SetInt(SaveKey_Level, level);
+            PlayerPrefs.Save();
+
+            uiManager.UpdateLevel(level);
+            //uiManager.ShowLevelUp(level);  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
+
+            // update speed
+            dropper.UpdateSpeed(level);
+
+            // save speed
+            PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
+            PlayerPrefs.Save();
+
+            Debug.Log($"(Perfect) Level UP → {level}  Saved.");
+        }
+        else
+        {
+            // Normal save (even without leveling)
+            PlayerPrefs.SetInt(SaveKey_Level, level);
+            PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
+            PlayerPrefs.Save();
+        }
     }
+
+    // for testing
+    public void ResetLevel()
+    {
+        level = 1;                  
+        UIManager.Instance.UpdateLevel(level);
+    }
+
 
     public void AddScore(int amount)
     {
