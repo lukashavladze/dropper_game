@@ -11,7 +11,7 @@ public class StackManager : MonoBehaviour
     [Header("Stone Width Rules")]
     public float originalStoneWidth = 1.0f;
     public float minStoneWidth = 0.1f;
-    public float perfectThreshold = 0.02f;
+    public float perfectThreshold = 0.1f;
 
     public float fixedShrink = 0.1f;
     public float fixedWiden = 0.1f;

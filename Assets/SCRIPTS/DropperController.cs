@@ -8,7 +8,7 @@ public class DropperController : MonoBehaviour
     public Transform spawnPoint;
     public float leftX = -5f, rightX = 5f;
     public float baseSpeed = 5f;
-    public float speedIncreasePerLevel = 1.5f;
+    public float speedIncreasePerLevel = 0.3f;
 
     public float CurrentSpeed => moveSpeed;
 
