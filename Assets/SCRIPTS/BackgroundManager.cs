@@ -17,23 +17,38 @@ public class BackgroundManager : MonoBehaviour
             UpdateTheme(0);
     }
 
-    void LateUpdate()
-    {
-        if (mainCamera == null) return;
+    //void LateUpdate()
+    //{
+    //    if (mainCamera == null) return;
 
-        // Follow camera's vertical movement smoothly
-        Vector3 bgPos = bgRenderer.transform.position;
-        bgPos.y = Mathf.Lerp(bgPos.y, mainCamera.transform.position.y + yOffset, Time.deltaTime * followSpeed);
-        bgRenderer.transform.position = bgPos;
-    }
+    //    // Follow camera's vertical movement smoothly
+    //    Vector3 bgPos = bgRenderer.transform.position;
+    //    bgPos.y = Mathf.Lerp(bgPos.y, mainCamera.transform.position.y + yOffset, Time.deltaTime * followSpeed);
+    //    bgRenderer.transform.position = bgPos;
+    //}
 
+    //public void UpdateTheme(int placedCount)
+    //{
+    //    if (backgrounds == null || backgrounds.Length == 0)
+    //        return;
+
+    //    int index = Mathf.Min(placedCount / 3, backgrounds.Length - 1);
+    //    if (index != currentThemeIndex)
+    //    {
+    //        currentThemeIndex = index;
+    //        bgRenderer.sprite = backgrounds[currentThemeIndex];
+    //    }
+    //}
+
+    // for testing need to delete after
     public void UpdateTheme(int placedCount)
     {
         if (backgrounds == null || backgrounds.Length == 0)
             return;
-
-        int index = Mathf.Min(placedCount / 3, backgrounds.Length - 1);
-        if (index != currentThemeIndex)
+        int index = 1;
+        //int index = Mathf.Min(placedCount / 3, backgrounds.Length - 1);
+        //if (index != currentThemeIndex)
+        if (index == currentThemeIndex)
         {
             currentThemeIndex = index;
             bgRenderer.sprite = backgrounds[currentThemeIndex];

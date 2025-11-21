@@ -133,7 +133,7 @@ public class GameManager : MonoBehaviour
         dropperTransform.position = pos;
 
         // theme update (your original logic)
-        if (placedCount % 5 == 0)
+        //if (placedCount % 5 == 0)
             backgroundManager.UpdateTheme(placedCount);
 
         // ------- LEVEL PROGRESSION -------
