@@ -40,7 +40,7 @@ public class StackManager : MonoBehaviour
             platformY = platform.transform.position.y + (sr != null ? sr.bounds.size.y * 0.5f : 0.5f);
         }
     }
-
+     
     public void RegisterPlacedStone(GameObject stone)
     {
         StartCoroutine(CheckPlacementNextFrame(stone));
