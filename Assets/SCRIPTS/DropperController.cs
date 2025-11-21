@@ -149,6 +149,10 @@ public class DropperController : MonoBehaviour
 
     private void OnStonePlaced(GameObject stone)
     {
+        // Reset rotation to perfectly straight (no tilt)
+        stone.transform.rotation = Quaternion.identity;
+
+        // Continue with your existing logic
         StackManager.Instance.RegisterPlacedStone(stone);
 
         var fo = stone.GetComponent<FallingObject>();
