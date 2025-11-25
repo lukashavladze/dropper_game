@@ -134,7 +134,7 @@ public class GameManager : MonoBehaviour
 
         // theme update (your original logic)
         //if (placedCount % 5 == 0)
-            backgroundManager.UpdateTheme(placedCount);
+        backgroundManager.UpdateTheme(placedCount);
 
         // ------- LEVEL PROGRESSION -------
         placedSinceLevel++;
@@ -229,7 +229,7 @@ public class GameManager : MonoBehaviour
     // for testing
     public void ResetLevel()
     {
-        level = 1;                  
+        level = 1;
         UIManager.Instance.UpdateLevel(level);
     }
 

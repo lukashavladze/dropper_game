@@ -18,6 +18,10 @@ public class StackManager : MonoBehaviour
 
     private float platformY;
 
+    public Transform landingLine;
+    public Transform landingLeft;
+    public Transform landingRight;
+
     [Header("Game Over / Live check settings")]
     public bool requireHorizontalOverlapForGameOver = false;
     public float gameOverVerticalMargin = 0.02f;
@@ -33,14 +37,10 @@ public class StackManager : MonoBehaviour
 
     void Start()
     {
-        GameObject platform = GameObject.FindGameObjectWithTag("Platform");
-        if (platform != null)
-        {
-            var sr = platform.GetComponent<SpriteRenderer>();
-            platformY = platform.transform.position.y + (sr != null ? sr.bounds.size.y * 0.5f : 0.5f);
-        }
+        if (landingLine != null)
+            platformY = landingLine.position.y;
     }
-     
+
     public void RegisterPlacedStone(GameObject stone)
     {
         StartCoroutine(CheckPlacementNextFrame(stone));
@@ -56,10 +56,7 @@ public class StackManager : MonoBehaviour
         if (falling == null) return;
 
         Rigidbody2D rb = falling.GetComponent<Rigidbody2D>();
-        if (rb == null) return;
-
-        if (!rb.simulated) return;
-        if (rb.linearVelocity.y >= 0f) return;
+        if (rb == null || !rb.simulated || rb.linearVelocity.y >= 0f) return;
 
         var srFall = falling.GetComponent<SpriteRenderer>();
         var lastPlaced = stack[stack.Count - 1];
@@ -77,6 +74,7 @@ public class StackManager : MonoBehaviour
                 float lastHalfW = srLast.bounds.size.x * 0.5f;
                 float dx = Mathf.Abs(falling.transform.position.x - lastPlaced.transform.position.x);
                 float horizOverlap = (fallHalfW + lastHalfW) - dx;
+
                 if (horizOverlap <= 0f)
                     GameManager.Instance.OnMiss(falling);
             }
@@ -85,6 +83,12 @@ public class StackManager : MonoBehaviour
                 GameManager.Instance.OnMiss(falling);
             }
         }
+    }
+
+    public bool IsXInsideLandingRange(float x)
+    {
+        if (landingLeft == null || landingRight == null) return true;
+        return x >= landingLeft.position.x && x <= landingRight.position.x;
     }
 
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
@@ -99,33 +103,45 @@ public class StackManager : MonoBehaviour
         float stoneWidth = sr.bounds.size.x;
         float stoneHeight = sr.bounds.size.y;
 
-        // FIRST STONE
+        // ------------------------------
+        // FIRST STONE (REPLACED SECTION)
+        // ------------------------------
         if (stack.Count == 0)
         {
-            GameObject platform = GameObject.FindGameObjectWithTag("Platform");
-            if (platform == null) { GameManager.Instance?.OnMiss(stone); yield break; }
-
             float stoneBottom = stone.transform.position.y - stoneHeight * 0.5f;
-            float platformTop = platform.transform.position.y + (platform.GetComponent<SpriteRenderer>() != null
-                ? platform.GetComponent<SpriteRenderer>().bounds.size.y * 0.5f
-                : 0.5f);
 
-            if (Mathf.Abs(stoneBottom - platformTop) > 0.4f)
+            // vertical check
+            if (stoneBottom < landingLine.position.y - 0.05f)
             {
                 GameManager.Instance?.OnMiss(stone);
                 yield break;
             }
 
+            // horizontal limit check
+            if (!IsXInsideLandingRange(stone.transform.position.x))
+            {
+                GameManager.Instance?.OnMiss(stone);
+                yield break;
+            }
+
+            // snap to line
+            stone.transform.position = new Vector3(
+                stone.transform.position.x,
+                landingLine.position.y + stoneHeight * 0.5f,
+                stone.transform.position.z
+            );
+
             rb.bodyType = RigidbodyType2D.Static;
             stack.Add(stone);
-            GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
 
-            // ensure next stone spawns
+            GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
             DropperController.Instance?.SpawnNextStoneDelayed(0.1f);
             yield break;
         }
 
+        // ------------------------------
         // LATER STONES
+        // ------------------------------
         GameObject top = stack[stack.Count - 1];
         var topSR = top.GetComponent<SpriteRenderer>();
         if (topSR == null) { GameManager.Instance?.OnMiss(stone); yield break; }
@@ -145,15 +161,14 @@ public class StackManager : MonoBehaviour
 
         bool isPerfect = absDx <= perfectThreshold;
 
-        // Snap on top
+        // snap on top
         float topTop = top.transform.position.y + topHeight * 0.5f;
         stone.transform.position = new Vector3(top.transform.position.x, topTop + stoneHeight * 0.5f, stone.transform.position.z);
 
-        // freeze stone and add
         rb.bodyType = RigidbodyType2D.Static;
         stack.Add(stone);
 
-        // width logic
+        // resizing logic
         if (isPerfect)
         {
             float newWidth = Mathf.Clamp(NextStoneWidth + fixedWiden, minStoneWidth, originalStoneWidth);
@@ -174,7 +189,6 @@ public class StackManager : MonoBehaviour
             GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
         }
 
-        // ensure next spawn (safety)
         DropperController.Instance?.SpawnNextStoneDelayed(0.08f);
     }
 
@@ -188,7 +202,6 @@ public class StackManager : MonoBehaviour
         {
             if (stone.transform.position.y < referenceY - 1f)
             {
-                Debug.Log("❌ Stone fell below stack — instant game over");
                 GameManager.Instance?.OnMiss(stone);
                 yield break;
             }
@@ -200,6 +213,7 @@ public class StackManager : MonoBehaviour
     private void ApplyWidthToStone(GameObject stone, float targetWorldWidth)
     {
         if (stone == null) return;
+
         var sr = stone.GetComponent<SpriteRenderer>();
         if (sr == null || sr.sprite == null) return;
 
@@ -217,6 +231,7 @@ public class StackManager : MonoBehaviour
             var ls = stone.transform.localScale;
             float worldW = sr.bounds.size.x;
             float worldH = sr.bounds.size.y;
+
             col.size = new Vector2(worldW / ls.x, worldH / ls.y);
             col.offset = Vector2.zero;
         }
