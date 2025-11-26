@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -169,10 +170,34 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private IEnumerator PerfectBounce(Transform stone)
+    {
+        Vector3 start = stone.localScale;
+        Vector3 big = start * 1.15f;
+
+        float t = 0;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 8f;
+            stone.localScale = Vector3.Lerp(start, big, t);
+            yield return null;
+        }
+
+        t = 0;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 6f;
+            stone.localScale = Vector3.Lerp(big, start, t);
+            yield return null;
+        }
+    }
+
     public void OnPerfectPlacement(int lvl, GameObject stone)
     {
         PlaySound(perfectSound);
         AddScore(10);
+
+        StartCoroutine(PerfectBounce(stone.transform));
 
         // Move dropper up
         if (perfectPlacementEffect != null)
