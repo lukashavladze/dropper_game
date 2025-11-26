@@ -252,6 +252,36 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ContinueGame()
+    {
+        if (!isGameOver) return;
+
+        isGameOver = false;
+
+        // Unfreeze physics
+        foreach (var rb in Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None))
+            rb.simulated = true;
+
+        // Destroy ALL stones that still have physics enabled and are falling
+        var stones = Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None);
+        foreach (var rb in stones)
+        {
+            if (rb.gameObject.CompareTag("Stone") && rb.simulated)
+            {
+                // falling miss stone → remove it
+                if (!StackManager.Instance.IsInStack(rb.gameObject))
+                    Destroy(rb.gameObject);
+            }
+        }
+
+        // Spawn new stone
+        DropperController.Instance.SpawnStone();
+
+        uiManager.HideGameOver();
+    }
+
+
+
     // for testing
     public void ResetLevel()
     {

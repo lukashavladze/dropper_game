@@ -121,4 +121,9 @@ public class UIManager : MonoBehaviour
     {
         GameManager.Instance.Restart();
     }
+
+    public void OnContinueButton()
+    {
+        GameManager.Instance.ContinueGame();
+    }
 }

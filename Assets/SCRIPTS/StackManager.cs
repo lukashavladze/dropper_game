@@ -222,6 +222,11 @@ public class StackManager : MonoBehaviour
         }
     }
 
+    public bool IsInStack(GameObject stone)
+    {
+        return stack.Contains(stone);
+    }
+
     public GameObject GetLastStone() => stack.Count == 0 ? null : stack[stack.Count - 1];
     public int GetStackCount() => stack.Count;
 }
