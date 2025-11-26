@@ -177,5 +177,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sleepVelocityThreshold: 0.05
   settleTime: 0.25
-  baseGravityScale: 1
-  gravityIncreasePerLevel: 0.5

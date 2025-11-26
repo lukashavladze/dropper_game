@@ -177,7 +177,8 @@ public class GameManager : MonoBehaviour
         // Move dropper up
         if (perfectPlacementEffect != null)
         {
-            Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
+            //Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
+            Vector3 pos = stone.transform.position;
             GameObject fx = Instantiate(perfectPlacementEffect, pos, Quaternion.identity);
 
             var sr = stone.GetComponent<SpriteRenderer>();
