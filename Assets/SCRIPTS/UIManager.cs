@@ -126,4 +126,21 @@ public class UIManager : MonoBehaviour
     {
         GameManager.Instance.ContinueGame();
     }
+
+    //public void OnContinueButton()
+    //{
+    //    // show ad; on completion if rewarded -> continue
+    //    LevelPlayAdsManager.Instance.ShowRewarded(watched =>
+    //    {
+    //        if (watched)
+    //        {
+    //            GameManager.Instance.ContinueGame();
+    //        }
+    //        else
+    //        {
+    //            // optional: show message "Ad not ready" or re-show continue panel
+    //            UIManager.Instance.ShowAdNotAvailablePopup(); // implement if you like
+    //        }
+    //    });
+    //}
 }
