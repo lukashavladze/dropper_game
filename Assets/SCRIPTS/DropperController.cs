@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class DropperController : MonoBehaviour
 {
@@ -46,7 +47,14 @@ public class DropperController : MonoBehaviour
         // Ignore input if over UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
-        if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began))
+        var mouse = Mouse.current;
+        var touch = Touchscreen.current;
+
+        if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+        {
+            DropCurrent();
+        }
+        else if (touch != null && touch.primaryTouch.press.wasPressedThisFrame)
         {
             DropCurrent();
         }
