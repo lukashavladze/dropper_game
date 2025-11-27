@@ -1,36 +1,36 @@
-#if UNITY_EDITOR
-using System;
-using UnityEngine;
+//#if UNITY_EDITOR
+//using System;
+//using UnityEngine;
 
-public class EditorRewardedAdSimulator
-{
-    public event Action OnAdLoaded;
-    public event Action OnAdDisplayed;
-    public event Action OnAdClosed;
-    public event Action OnAdRewarded;
+//public class EditorRewardedAdSimulator
+//{
+//    public event Action OnAdLoaded;
+//    public event Action OnAdDisplayed;
+//    public event Action OnAdClosed;
+//    public event Action OnAdRewarded;
 
-    public void LoadAd()
-    {
-        Debug.Log("<Editor Ad> Simulating load...");
-        OnAdLoaded?.Invoke();
-    }
+//    public void LoadAd()
+//    {
+//        Debug.Log("<Editor Ad> Simulating load...");
+//        OnAdLoaded?.Invoke();
+//    }
 
-    public bool IsAdReady()
-    {
-        return true;
-    }
+//    public bool IsAdReady()
+//    {
+//        return true; // Always ready in editor
+//    }
 
-    public void ShowAd()
-    {
-        Debug.Log("<Editor Ad> Simulated ad started");
+//    public void ShowAd()
+//    {
+//        Debug.Log("<Editor Ad> Simulated ad started");
+//        OnAdDisplayed?.Invoke();
 
-        OnAdDisplayed?.Invoke();
+//        // Simulate user reward
+//        Debug.Log("<Editor Ad> Simulating reward");
+//        OnAdRewarded?.Invoke();
 
-        // Simulate user watching the ad
-        Debug.Log("<Editor Ad> Simulating reward");
-        OnAdRewarded?.Invoke();
-
-        OnAdClosed?.Invoke();
-    }
-}
-#endif
+//        Debug.Log("<Editor Ad> Simulated ad closed");
+//        OnAdClosed?.Invoke();
+//    }
+//}
+//#endif

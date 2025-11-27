@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Services.Core;
 using Unity.Services.LevelPlay;
-using Unity.VisualScripting;
 
 public class RewardedAdsManager : MonoBehaviour
 {
@@ -14,23 +13,15 @@ public class RewardedAdsManager : MonoBehaviour
     {
         await UnityServices.InitializeAsync();
 
-        // Subscribe with correct signatures
         LevelPlay.OnInitSuccess += OnInitSuccess;
         LevelPlay.OnInitFailed += OnInitFailed;
 
         LevelPlay.Init(appKey, SystemInfo.deviceUniqueIdentifier);
     }
 
-    // -------- INIT CALLBACKS --------
-
     private void OnInitSuccess(LevelPlayConfiguration config)
     {
         Debug.Log("LevelPlay Init Success");
-
-#if UNITY_EDITOR
-        Debug.Log("Editor mode: LevelPlay ads cannot load in editor.");
-        return;
-#endif
 
         rewardedAd = new LevelPlayRewardedAd(rewardedAdUnitId);
 
@@ -44,13 +35,10 @@ public class RewardedAdsManager : MonoBehaviour
         rewardedAd.LoadAd();
     }
 
-
     private void OnInitFailed(LevelPlayInitError error)
     {
-        Debug.LogError("Init Failed:");
+        Debug.LogError("LevelPlay Init Failed: " + error);
     }
-
-    // -------- REWARDED EVENTS --------
 
     private void OnAdLoaded(LevelPlayAdInfo adInfo)
     {
@@ -59,7 +47,7 @@ public class RewardedAdsManager : MonoBehaviour
 
     private void OnAdLoadFailed(LevelPlayAdError error)
     {
-        Debug.LogError("Load failed: ");
+        Debug.LogError("Rewarded load failed: " + error);
     }
 
     private void OnAdDisplayed(LevelPlayAdInfo adInfo)
@@ -69,7 +57,7 @@ public class RewardedAdsManager : MonoBehaviour
 
     private void OnAdDisplayFailed(LevelPlayAdInfo adInfo, LevelPlayAdError error)
     {
-        Debug.LogError("Display failed:");
+        Debug.LogError("Rewarded display failed: " + error);
     }
 
     private void OnAdClosed(LevelPlayAdInfo adInfo)
@@ -79,17 +67,18 @@ public class RewardedAdsManager : MonoBehaviour
 
     private void OnAdRewarded(LevelPlayAdInfo adInfo, LevelPlayReward reward)
     {
-        Debug.Log("User rewarded: " + reward.Amount);
-        // Give reward here
+        Debug.Log("USER REWARDED: " + reward.Amount);
     }
 
     public void ShowRewarded()
     {
         if (rewardedAd != null && rewardedAd.IsAdReady())
+        {
             rewardedAd.ShowAd();
+        }
         else
         {
-            Debug.Log("Rewarded not ready — reloading");
+            Debug.Log("Rewarded not ready – loading again");
             rewardedAd.LoadAd();
         }
     }
