@@ -18,6 +18,11 @@ public class UIManager : MonoBehaviour
     public GameObject LevelUpPanel;
     public Text LevelUpText;
 
+    public string[] planets = {
+    "Mercury", "Venus", "Earth", "Mars", "Jupiter",
+    "Saturn", "Uranus", "Neptune", "Pluto"
+};
+
 
 
     void Start()
@@ -33,8 +38,9 @@ public class UIManager : MonoBehaviour
             perfectText.gameObject.SetActive(false);
     }
 
-    public void ShowLevelUp(int level, string planetName)
+    public void ShowLevelUp(int level)
     {
+        string planetName = planets[level];
         LevelUpText.text = "                    CONGRATULATIONS!\r\n     YOU HAVE REACHED " + planetName;
         LevelUpPanel.SetActive(true);
         CancelInvoke(nameof(HideLevelUp));
