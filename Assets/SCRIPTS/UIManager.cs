@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance;
 
+    public GameObject LevelUpPanel;
     public Text LevelUpText;
 
 
@@ -32,17 +33,17 @@ public class UIManager : MonoBehaviour
             perfectText.gameObject.SetActive(false);
     }
 
-    public void ShowLevelUp(int level)
+    public void ShowLevelUp(int level, string planetName)
     {
-        LevelUpText.text = "LEVEL " + level;
-        LevelUpText.gameObject.SetActive(true);
+        LevelUpText.text = "                    CONGRATULATIONS!\r\n     YOU HAVE REACHED " + planetName;
+        LevelUpPanel.SetActive(true);
         CancelInvoke(nameof(HideLevelUp));
         Invoke(nameof(HideLevelUp), 1.2f);
     }
 
     void HideLevelUp()
     {
-        LevelUpText.gameObject.SetActive(false);
+        LevelUpPanel.SetActive(false);
     }
 
     public void ShowPerfectText()

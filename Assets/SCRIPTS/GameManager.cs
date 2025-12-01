@@ -150,7 +150,7 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
 
             uiManager.UpdateLevel(level);
-            //uiManager.ShowLevelUp(level);  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
+            uiManager.ShowLevelUp(level, "MARSE");  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
 
             // update speed AFTER save
             dropper.UpdateSpeed(level);
@@ -232,7 +232,7 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
 
             uiManager.UpdateLevel(level);
-            //uiManager.ShowLevelUp(level);  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
+            uiManager.ShowLevelUp(level, "MARSE");  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
 
             // update speed
             dropper.UpdateSpeed(level);
