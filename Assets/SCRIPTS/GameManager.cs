@@ -110,6 +110,8 @@ public class GameManager : MonoBehaviour
 
         PlaySound(missSound);
         isGameOver = true;
+        UIManager.Instance.UpdatePlanet(GameManager.Instance.level);
+        UIManager.Instance.UpdateScoreGameover(GameManager.Instance.score);
         uiManager.ShowGameOver();
 
         // freeze all physics

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +18,19 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
 
     public GameObject LevelUpPanel;
-    public Text LevelUpText;
+    //public Text LevelUpText;
+
+
+    public TextMeshProUGUI planetText;
+
+    public Text scoreCountText;
+    public Text bestScoreCountText;
+
+    public Text planetText_arrive;
+
+    public Image planetImage_arrive;
+    public Sprite[] planetIcons;   // same order as planets[]
+
 
     public string[] planets = {
     "Mercury", "Venus", "Earth", "Mars", "Jupiter",
@@ -40,17 +54,20 @@ public class UIManager : MonoBehaviour
 
     public void ShowLevelUp(int level)
     {
-        string planetName = planets[level];
-        LevelUpText.text = "                    CONGRATULATIONS!\r\n     YOU HAVE REACHED " + planetName;
+        string planetName = planets[level - 1];
+        planetText_arrive.text = planetName;
+        if (planetIcons != null && planetIcons.Length > level)
+            planetImage_arrive.sprite = planetIcons[level - 1];
         LevelUpPanel.SetActive(true);
         CancelInvoke(nameof(HideLevelUp));
-        Invoke(nameof(HideLevelUp), 1.2f);
+        Invoke(nameof(HideLevelUp), 2.2f);
     }
 
     void HideLevelUp()
     {
         LevelUpPanel.SetActive(false);
     }
+
 
     public void ShowPerfectText()
     {
@@ -99,6 +116,11 @@ public class UIManager : MonoBehaviour
         //    LeaderboardManager.Instance.SetBest(score);
         //    UpdateBest();
         //}
+    }
+
+    public void UpdateScoreGameover(int score)
+    {
+        scoreCountText.text = score.ToString();
     }
 
 
@@ -150,4 +172,11 @@ public class UIManager : MonoBehaviour
     //        }
     //    });
     //}
+
+    public void UpdatePlanet(int level)
+    {
+        int index = Mathf.Clamp(level - 1, 0, planets.Length - 1);
+        planetText.text = planets[index];
+    }
+
 }
