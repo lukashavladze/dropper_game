@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -54,10 +54,10 @@ public class UIManager : MonoBehaviour
 
     public void ShowLevelUp(int level)
     {
-        string planetName = planets[level - 1];
+        string planetName = planets[level - 2];
         planetText_arrive.text = planetName;
         if (planetIcons != null && planetIcons.Length > level)
-            planetImage_arrive.sprite = planetIcons[level - 1];
+            planetImage_arrive.sprite = planetIcons[level];
         LevelUpPanel.SetActive(true);
         CancelInvoke(nameof(HideLevelUp));
         Invoke(nameof(HideLevelUp), 2.2f);
@@ -142,6 +142,19 @@ public class UIManager : MonoBehaviour
 
     void UpdateBest()
     {
+        if (bestText == null)
+        {
+            Debug.LogWarning("UIManager: bestText is not assigned in the Inspector.");
+            return;
+        }
+
+        if (LeaderboardManager.Instance == null)
+        {
+            Debug.LogWarning("UIManager: LeaderboardManager.Instance is null – best score will show as 0.");
+            bestText.text = "Best: 0";
+            return;
+        }
+
         bestText.text = "Best: " + LeaderboardManager.Instance.GetBest();
     }
 
@@ -153,7 +166,26 @@ public class UIManager : MonoBehaviour
 
     public void OnContinueButton()
     {
-        GameManager.Instance.ContinueGame();
+        if (UnityAdsManager.Instance == null)
+        {
+            Debug.LogWarning("RewardedAdsManager.Instance is null – continuing without ad.");
+            GameManager.Instance.ContinueGame();
+            return;
+        }
+
+        // Show rewarded ad; continue only if user actually watched
+        UnityAdsManager.Instance.ShowRewarded(watched =>
+        {
+            if (watched)
+            {
+                GameManager.Instance.ContinueGame();
+            }
+            else
+            {
+                // Optional: show popup "Ad not available" or similar
+                Debug.Log("Continue cancelled – ad not watched or not available.");
+            }
+        });
     }
 
     //public void OnContinueButton()

@@ -23,7 +23,7 @@ public class StackManager : MonoBehaviour
     public float gameOverVerticalMargin = 0.02f;
 
     public float NextStoneWidth { get; private set; }
-
+    
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }

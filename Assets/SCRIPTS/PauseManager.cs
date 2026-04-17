@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement; // for exit
 using UnityEngine.UI;
 
@@ -9,7 +9,15 @@ public class PauseManager : MonoBehaviour
     public Button resumeButton;
     public Button exitButton;
 
-    public static bool IsPaused { get; private set; } = false;
+    public static bool IsPaused { get; private set; }
+
+    // Ensure the game always starts unpaused on every scene load
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ResetPauseOnLoad()
+    {
+        Time.timeScale = 1f;
+        IsPaused = false;
+    }
 
     //void Start()
     //{
