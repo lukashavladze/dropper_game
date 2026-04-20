@@ -106,13 +106,20 @@ public class GameManager : MonoBehaviour
 
     public void OnMiss(GameObject stone)
     {
+        int best = PlayerPrefs.GetInt("BEST_SCORE", 0);
         if (isGameOver) return;
 
         PlaySound(missSound);
         isGameOver = true;
         UIManager.Instance.UpdatePlanet(GameManager.Instance.level);
         UIManager.Instance.UpdateScoreGameover(GameManager.Instance.score);
-        LeaderboardManager.Instance?.SaveScore(score);
+        if (score > best)
+        {
+            PlayerPrefs.SetInt("BEST_SCORE", score);
+            PlayerPrefs.Save();
+
+            LeaderboardManager.Instance.SaveScore(score);
+        }
         uiManager.ShowGameOver();
 
         // freeze all physics

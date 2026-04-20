@@ -1,6 +1,8 @@
 ﻿using Firebase.Database;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using Firebase.Extensions;
 
 public class LeaderboardManager : MonoBehaviour
 {
@@ -61,6 +63,33 @@ public class LeaderboardManager : MonoBehaviour
                 }
             }
         });
+    }
+
+    public void LoadTopScores(System.Action<List<LeaderEntry>> callback)
+    {
+        db.Child("leaderboard")
+          .OrderByChild("score")
+          .LimitToLast(10)
+          .GetValueAsync()
+          .ContinueWithOnMainThread(task =>
+          {
+              if (!task.IsCompleted || task.Result == null)
+                  return;
+
+              var list = new List<LeaderEntry>();
+
+              foreach (var child in task.Result.Children)
+              {
+                  string name = child.Child("name").Value.ToString();
+                  int score = int.Parse(child.Child("score").Value.ToString());
+
+                  list.Add(new LeaderEntry(name, score));
+              }
+
+              list.Sort((a, b) => b.score.CompareTo(a.score));
+
+              callback?.Invoke(list);
+          });
     }
 
     private void WriteScore(string userId, string name, int score)
