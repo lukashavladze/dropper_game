@@ -470,7 +470,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 774813620}
-  - component: {fileID: 774813619}
+  - component: {fileID: 774813621}
+  - component: {fileID: 774813622}
   m_Layer: 0
   m_Name: FirebaseManager
   m_TagString: Untagged
@@ -478,18 +479,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &774813619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774813618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de7380c15a8429443ade722e6dd3e5f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &774813620
 Transform:
   m_ObjectHideFlags: 0
@@ -505,6 +494,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &774813621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774813618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de7380c15a8429443ade722e6dd3e5f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FirebaseTest
+--- !u!114 &774813622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774813618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43475bc0c706ab14886c4de1ca0adb0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LeaderboardManager
 --- !u!1 &944784376
 GameObject:
   m_ObjectHideFlags: 0
@@ -908,7 +921,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1823832252}
-  - component: {fileID: 1823832251}
+  - component: {fileID: 1823832253}
   m_Layer: 0
   m_Name: unityAdsinitializer
   m_TagString: Untagged
@@ -916,21 +929,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1823832251
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1823832250}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2589b9d79163a5458fdca8ab4da3a56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UnityAdsManager
-  androidGameId: 5992767
-  iosGameId: YOUR_IOS_ID
-  rewardedAdUnitId: oncontinue
 --- !u!4 &1823832252
 Transform:
   m_ObjectHideFlags: 0
@@ -946,6 +944,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1823832253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823832250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2589b9d79163a5458fdca8ab4da3a56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnityAdsManager
+  androidGameId: 5992767
+  iosGameId: 5992766
+  androidRewardedId: oncontinue
+  iosRewardedId: oncontinueios
 --- !u!1 &1975656620
 GameObject:
   m_ObjectHideFlags: 0

@@ -87,6 +87,17 @@ public class StackManager : MonoBehaviour
         }
     }
 
+    public void ResetStackWidthToOriginal()
+    {
+        NextStoneWidth = originalStoneWidth;
+
+        if (stack.Count > 0)
+        {
+            GameObject last = stack[stack.Count - 1];
+            ApplyWidthToStone(last, originalStoneWidth);
+        }
+    }
+
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
     {
         yield return null;

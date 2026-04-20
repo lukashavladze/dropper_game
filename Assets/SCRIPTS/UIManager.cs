@@ -155,7 +155,7 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        bestText.text = "Best: " + LeaderboardManager.Instance.GetBest();
+        //bestText.text = "Best: " + LeaderboardManager.Instance.GetBest();
     }
 
 

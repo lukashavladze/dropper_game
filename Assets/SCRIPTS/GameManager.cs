@@ -112,6 +112,7 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         UIManager.Instance.UpdatePlanet(GameManager.Instance.level);
         UIManager.Instance.UpdateScoreGameover(GameManager.Instance.score);
+        LeaderboardManager.Instance?.SaveScore(score);
         uiManager.ShowGameOver();
 
         // freeze all physics
@@ -276,7 +277,8 @@ public class GameManager : MonoBehaviour
                     Destroy(rb.gameObject);
             }
         }
-
+        // RESET WIDTH AFTER CONTINUE
+        StackManager.Instance.ResetStackWidthToOriginal();
         // Spawn new stone
         DropperController.Instance.SpawnStone();
 
