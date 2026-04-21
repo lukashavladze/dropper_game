@@ -21,9 +21,4 @@ public class MainMenuManager : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
-
-    public void Leaderboard()
-    {
-        Debug.Log("Leaderboard pressed (not implemented)");
-    }
 }

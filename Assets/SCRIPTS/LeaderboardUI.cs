@@ -1,5 +1,4 @@
 using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
 
 public class LeaderboardUI : MonoBehaviour
@@ -7,10 +6,31 @@ public class LeaderboardUI : MonoBehaviour
     public Transform content;
     public GameObject itemPrefab;
 
+    void OnEnable()
+    {
+        if (LeaderboardManager.Instance != null)
+            LeaderboardManager.Instance.OnScoreSaved += Refresh;
+    }
+
+    void OnDisable()
+    {
+        if (LeaderboardManager.Instance != null)
+            LeaderboardManager.Instance.OnScoreSaved -= Refresh;
+    }
+
     public void Show()
     {
         gameObject.SetActive(true);
+        Load();
+    }
 
+    void Refresh()
+    {
+        Load();
+    }
+
+    void Load()
+    {
         // clear old entries
         foreach (Transform child in content)
             Destroy(child.gameObject);
@@ -20,14 +40,16 @@ public class LeaderboardUI : MonoBehaviour
 
     void OnLoaded(List<LeaderboardManager.LeaderEntry> list)
     {
+        int rank = 1;
+
         foreach (var entry in list)
         {
             GameObject obj = Instantiate(itemPrefab, content);
 
-            var texts = obj.GetComponentsInChildren<TextMeshProUGUI>();
+            var item = obj.GetComponent<LeaderboardItemUI>();
+            item.Setup(rank, entry.name, entry.score);
 
-            texts[0].text = entry.name;
-            texts[1].text = entry.score.ToString();
+            rank++;
         }
     }
 

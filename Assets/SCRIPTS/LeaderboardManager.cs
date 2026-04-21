@@ -10,6 +10,8 @@ public class LeaderboardManager : MonoBehaviour
 
     private DatabaseReference db;
 
+    public System.Action OnScoreSaved; // UI refresh hook
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,7 +28,6 @@ public class LeaderboardManager : MonoBehaviour
 
     IEnumerator Init()
     {
-        // wait until Firebase is ready
         while (!FirebaseInit.IsReady)
             yield return null;
 
@@ -46,21 +47,28 @@ public class LeaderboardManager : MonoBehaviour
         string userId = SystemInfo.deviceUniqueIdentifier;
         string name = "Player_" + Random.Range(1000, 9999);
 
-        db.Child("leaderboard").Child(userId).GetValueAsync().ContinueWith(task =>
+        db.Child("leaderboard").Child(userId).GetValueAsync()
+        .ContinueWithOnMainThread(task =>
         {
-            if (task.IsCompleted)
-            {
-                if (task.Result.Exists)
-                {
-                    int oldScore = int.Parse(task.Result.Child("score").Value.ToString());
+            if (!task.IsCompleted || task.Result == null)
+                return;
 
-                    if (score > oldScore)
-                        WriteScore(userId, name, score);
-                }
-                else
+            if (task.Result.Exists)
+            {
+                int oldScore = int.Parse(task.Result.Child("score").Value.ToString());
+
+                if (score > oldScore)
                 {
                     WriteScore(userId, name, score);
                 }
+                else
+                {
+                    Debug.Log("Score not higher, not updating");
+                }
+            }
+            else
+            {
+                WriteScore(userId, name, score);
             }
         });
     }
@@ -86,6 +94,7 @@ public class LeaderboardManager : MonoBehaviour
                   list.Add(new LeaderEntry(name, score));
               }
 
+              // Firebase returns ascending → reverse
               list.Sort((a, b) => b.score.CompareTo(a.score));
 
               callback?.Invoke(list);
@@ -94,11 +103,22 @@ public class LeaderboardManager : MonoBehaviour
 
     private void WriteScore(string userId, string name, int score)
     {
-        db.Child("leaderboard").Child(userId).SetRawJsonValueAsync(
-            JsonUtility.ToJson(new LeaderEntry(name, score))
-        );
+        db.Child("leaderboard").Child(userId)
+        .SetRawJsonValueAsync(JsonUtility.ToJson(new LeaderEntry(name, score)))
+        .ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted)
+            {
+                Debug.Log("🔥 Score saved: " + score);
 
-        Debug.Log("🔥 Score saved: " + score);
+                // 🔥 Notify UI AFTER save completes
+                OnScoreSaved?.Invoke();
+            }
+            else
+            {
+                Debug.LogError("Failed to save score");
+            }
+        });
     }
 
     [System.Serializable]

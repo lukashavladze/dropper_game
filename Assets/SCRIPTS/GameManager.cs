@@ -111,15 +111,21 @@ public class GameManager : MonoBehaviour
 
         PlaySound(missSound);
         isGameOver = true;
+
         UIManager.Instance.UpdatePlanet(GameManager.Instance.level);
         UIManager.Instance.UpdateScoreGameover(GameManager.Instance.score);
+
+        // ✅ Save BEST score locally (for UI)
         if (score > best)
         {
             PlayerPrefs.SetInt("BEST_SCORE", score);
             PlayerPrefs.Save();
-
-            LeaderboardManager.Instance.SaveScore(score);
         }
+
+        // 🔥 ALWAYS send score to leaderboard
+        Debug.Log("Submitting score to leaderboard: " + score);
+        LeaderboardManager.Instance.SaveScore(score);
+
         uiManager.ShowGameOver();
 
         // freeze all physics
