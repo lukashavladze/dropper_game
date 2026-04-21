@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -6,24 +6,36 @@ public class CameraFollow : MonoBehaviour
     public float smoothSpeed = 5f;
     public Vector3 offset;
 
+    [HideInInspector]
+    public Vector3 shakeOffset;
+
+    private Vector3 basePosition; // 🔥 stable position
+
     void LateUpdate()
     {
-        // if not yet assigned, try to find the dropper automatically
         if (target == null)
         {
             if (GameManager.Instance != null && GameManager.Instance.dropperTransform != null)
-            {
                 target = GameManager.Instance.dropperTransform;
-            }
             else
-            {
-                Debug.LogWarning("CameraFollow: target is not assigned!");
                 return;
-            }
         }
 
-        // smoothly follow the target vertically
-        Vector3 desiredPos = new Vector3(transform.position.x, target.position.y + offset.y, transform.position.z);
-        transform.position = Vector3.Lerp(transform.position, desiredPos, smoothSpeed * Time.deltaTime);
+        // 🎯 Calculate PERFECT base position (no shake)
+        Vector3 desiredPos = new Vector3(
+            0f, // 🔥 LOCK X to center (VERY IMPORTANT for your issue)
+            target.position.y + offset.y,
+            transform.position.z
+        );
+
+        // smooth follow ONLY base position
+        basePosition = Vector3.Lerp(
+            basePosition == Vector3.zero ? desiredPos : basePosition,
+            desiredPos,
+            smoothSpeed * Time.deltaTime
+        );
+
+        // 🎯 FINAL POSITION = base + shake
+        transform.position = basePosition + shakeOffset;
     }
 }

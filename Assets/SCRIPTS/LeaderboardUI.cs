@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class LeaderboardUI : MonoBehaviour
@@ -40,10 +40,12 @@ public class LeaderboardUI : MonoBehaviour
 
     void OnLoaded(List<LeaderboardManager.LeaderEntry> list)
     {
+        Debug.Log("📊 Entries received: " + list.Count);
         int rank = 1;
 
         foreach (var entry in list)
         {
+            Debug.Log($"➡️ Spawning: {entry.name} - {entry.score}");
             GameObject obj = Instantiate(itemPrefab, content);
 
             var item = obj.GetComponent<LeaderboardItemUI>();

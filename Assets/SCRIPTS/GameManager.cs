@@ -18,12 +18,7 @@ public class GameManager : MonoBehaviour
     public int score = 0;
     public int level = 1;
 
-    [Tooltip("How many blocks required to level up")]
-    public int BlocksPerLevel = 5;
-
-    // how many placed since last level-up (0..BlocksPerLevel-1)
     private int placedSinceLevel = 0;
-
     public bool isGameOver = false;
 
     [Header("Audio")]
@@ -35,6 +30,9 @@ public class GameManager : MonoBehaviour
 
     private const string SaveKey_Level = "PLAYER_LEVEL";
     private const string SaveKey_Speed = "PLAYER_SPEED";
+
+    // 🔥 COMBO SYSTEM
+    private int comboCount = 0;
 
     void Awake()
     {
@@ -50,47 +48,47 @@ public class GameManager : MonoBehaviour
         if (camFollow != null && dropperTransform != null)
             camFollow.target = dropperTransform;
 
-        // LOAD SAVED LEVEL & SPEED
         if (PlayerPrefs.HasKey(SaveKey_Level))
         {
             level = PlayerPrefs.GetInt(SaveKey_Level);
-            // On start user requested: require full BlocksPerLevel stones to reach next level.
             placedSinceLevel = 0;
 
             uiManager.UpdateLevel(level);
 
             float savedSpeed = PlayerPrefs.GetFloat(SaveKey_Speed, DropperController.Instance.baseSpeed);
             dropper.SetSpeed(savedSpeed);
-
-            Debug.Log($"Loaded Level: {level}. Reset placedSinceLevel to {placedSinceLevel}. Speed restored: {savedSpeed}");
         }
         else
         {
-            // first time
             level = 1;
             placedSinceLevel = 0;
-            ui_manager_safe_update();
+            uiManager.UpdateLevel(level);
             dropper.UpdateSpeed(level);
         }
     }
 
     void Update()
     {
-        if (Keyboard.current.rKey.wasPressedThisFrame)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
-            ResetLevel();
-            PlayerPrefs.SetInt(SaveKey_Level, 1);
-            PlayerPrefs.SetFloat(SaveKey_Speed, 5);
-            PlayerPrefs.Save();
-            Debug.Log("Level reset!");
+            ResetEverythingForTesting();
         }
+        
     }
 
+    // =========================
+    // 🔥 COMBO LOGIC
+    // =========================
 
-    // small helper to avoid accidental null-call in inspector-less situations
-    private void ui_manager_safe_update()
+    void ResetCombo()
     {
-        if (uiManager != null) uiManager.UpdateLevel(level);
+        comboCount = 0;
+        UIManager.Instance?.UpdateCombo(0, 1);
+    }
+
+    int GetComboMultiplier()
+    {
+        return Mathf.Clamp(comboCount, 1, 10); // cap at x10
     }
 
     void PlaySound(AudioClip clip)
@@ -106,85 +104,142 @@ public class GameManager : MonoBehaviour
 
     public void OnMiss(GameObject stone)
     {
-        int best = PlayerPrefs.GetInt("BEST_SCORE", 0);
         if (isGameOver) return;
 
-        PlaySound(missSound);
         isGameOver = true;
+        PlaySound(missSound);
 
-        UIManager.Instance.UpdatePlanet(GameManager.Instance.level);
-        UIManager.Instance.UpdateScoreGameover(GameManager.Instance.score);
+        UIManager.Instance.UpdatePlanet(level);
+        UIManager.Instance.UpdateScoreGameover(score);
 
-        // ✅ Save BEST score locally (for UI)
+        int best = PlayerPrefs.GetInt("BEST_SCORE", 0);
         if (score > best)
         {
             PlayerPrefs.SetInt("BEST_SCORE", score);
             PlayerPrefs.Save();
         }
 
-        // 🔥 ALWAYS send score to leaderboard
-        Debug.Log("Submitting score to leaderboard: " + score);
         LeaderboardManager.Instance.SaveScore(score);
 
         uiManager.ShowGameOver();
 
-        // freeze all physics
         foreach (var rb in Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None))
             rb.simulated = false;
     }
 
-    /// <summary>
-    /// Called by StackManager after a stone is placed successfully.
-    /// </summary>
+    // =========================
+    // NORMAL PLACEMENT
+    // =========================
+
     public void OnPlacedSuccessful(int placedCount, GameObject stone)
     {
-        // score + UI
+        // ❗ RESET COMBO
+        ResetCombo();
+
         score += 1;
         uiManager.UpdateScore(score);
         PlaySound(placedSound);
 
-        // move dropper / camera up
-        var sr = stone.GetComponent<SpriteRenderer>();
-        float stoneHeight = sr != null ? sr.bounds.size.y : 1f;
-        Vector3 pos = dropperTransform.position;
-        pos.y += stoneHeight;
-        dropperTransform.position = pos;
+        MoveDropperUp(stone);
 
-        // theme update (your original logic)
-        //if (placedCount % 5 == 0)
-            backgroundManager.UpdateTheme(placedCount);
+        backgroundManager.UpdateTheme(level);
 
-        // ------- LEVEL PROGRESSION -------
+        HandleLevelProgression();
+    }
+
+    // =========================
+    // PERFECT PLACEMENT
+    // =========================
+
+    public void OnPerfectPlacement(int lvl, GameObject stone)
+    {
+        PlaySound(perfectSound);
+
+        // 🔥 COMBO INCREASE
+        comboCount++;
+
+        int multiplier = GetComboMultiplier();
+        if (multiplier >= 3)
+        {
+            CameraShake.ShakeSafe(0.25f, 0.4f);
+        }
+        int bonus = 10 * comboCount * comboCount;
+
+        AddScore(bonus);
+
+        UIManager.Instance?.UpdateCombo(comboCount, multiplier);
+
+        StartCoroutine(PerfectBounce(stone.transform));
+
+        MoveDropperUp(stone);
+
+        if (perfectPlacementEffect != null)
+        {
+            GameObject fx = Instantiate(perfectPlacementEffect, stone.transform.position, Quaternion.identity);
+            Destroy(fx, 2f);
+        }
+
+        Debug.Log($"🌟 PERFECT x{multiplier} (combo {comboCount})");
+
+        HandleLevelProgression();
+    }
+
+    // =========================
+    // LEVEL SYSTEM
+    // =========================
+
+    void HandleLevelProgression()
+    {
         placedSinceLevel++;
 
-        if (placedSinceLevel >= BlocksPerLevel)
+        int required = GetBlocksRequiredForLevel(level);
+
+        if (placedSinceLevel >= required)
         {
             placedSinceLevel = 0;
             level++;
 
-            // SAVE LEVEL *IMMEDIATELY* BEFORE ANYTHING ELSE
             PlayerPrefs.SetInt(SaveKey_Level, level);
             PlayerPrefs.Save();
 
             uiManager.UpdateLevel(level);
-            uiManager.ShowLevelUp(level);  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
+            uiManager.ShowLevelUp(level);
 
-            // update speed AFTER save
             dropper.UpdateSpeed(level);
 
-            // save speed
             PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
             PlayerPrefs.Save();
 
-            Debug.Log($"Level UP → {level}  Saved.");
+            Debug.Log($"Level UP → {level}");
         }
         else
         {
-            // normal save
             PlayerPrefs.SetInt(SaveKey_Level, level);
             PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
             PlayerPrefs.Save();
         }
+    }
+
+    int GetBlocksRequiredForLevel(int lvl)
+    {
+        if (lvl == 1) return 50;
+        if (lvl == 2) return 80;
+
+        return 80 + (lvl - 2) * 30;
+    }
+
+    // =========================
+    // HELPERS
+    // =========================
+
+    void MoveDropperUp(GameObject stone)
+    {
+        var sr = stone.GetComponent<SpriteRenderer>();
+        float h = sr != null ? sr.bounds.size.y : 1f;
+
+        Vector3 pos = dropperTransform.position;
+        pos.y += h;
+        dropperTransform.position = pos;
     }
 
     private IEnumerator PerfectBounce(Transform stone)
@@ -209,104 +264,71 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void OnPerfectPlacement(int lvl, GameObject stone)
-    {
-        PlaySound(perfectSound);
-        AddScore(10);
-
-        StartCoroutine(PerfectBounce(stone.transform));
-
-        // Move dropper up
-        if (perfectPlacementEffect != null)
-        {
-            //Vector3 pos = stone.transform.position + Vector3.up * 0.5f;
-            Vector3 pos = stone.transform.position;
-            GameObject fx = Instantiate(perfectPlacementEffect, pos, Quaternion.identity);
-
-            var sr = stone.GetComponent<SpriteRenderer>();
-            float stoneHeight = sr != null ? sr.bounds.size.y : 1f;
-
-            Vector3 pos1 = dropperTransform.position;
-            pos1.y += stoneHeight;
-            dropperTransform.position = pos1;
-
-            Destroy(fx, 2f);
-        }
-
-        Debug.Log("🌟 PERFECT PLACEMENT! Bonus +10 points");
-
-        // --- THIS WAS MISSING ---
-        // Perfect placement MUST ALSO count toward level progression
-        placedSinceLevel++;
-
-        if (placedSinceLevel >= BlocksPerLevel)
-        {
-            placedSinceLevel = 0;
-            level++;
-
-            // Save level immediately
-            PlayerPrefs.SetInt(SaveKey_Level, level);
-            PlayerPrefs.Save();
-
-            uiManager.UpdateLevel(level);
-            uiManager.ShowLevelUp(level);  /////////////////////////////////////////////// need to do////////////////////////////////////////////////
-
-            // update speed
-            dropper.UpdateSpeed(level);
-
-            // save speed
-            PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
-            PlayerPrefs.Save();
-
-            Debug.Log($"(Perfect) Level UP → {level}  Saved.");
-        }
-        else
-        {
-            // Normal save (even without leveling)
-            PlayerPrefs.SetInt(SaveKey_Level, level);
-            PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
-            PlayerPrefs.Save();
-        }
-    }
-
     public void ContinueGame()
     {
         if (!isGameOver) return;
 
         isGameOver = false;
 
-        // Unfreeze physics
         foreach (var rb in Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None))
             rb.simulated = true;
 
-        // Destroy ALL stones that still have physics enabled and are falling
         var stones = Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None);
         foreach (var rb in stones)
         {
             if (rb.gameObject.CompareTag("Stone") && rb.simulated)
             {
-                // falling miss stone → remove it
                 if (!StackManager.Instance.IsInStack(rb.gameObject))
                     Destroy(rb.gameObject);
             }
         }
-        // RESET WIDTH AFTER CONTINUE
+
         StackManager.Instance.ResetStackWidthToOriginal();
-        // Spawn new stone
         DropperController.Instance.SpawnStone();
 
         uiManager.HideGameOver();
     }
 
-
-
-    // for testing
-    public void ResetLevel()
+    // need to DELETE AFTER DEVELOPMENT IS DONE
+    public void ResetEverythingForTesting()
     {
-        level = 1;                  
-        UIManager.Instance.UpdateLevel(level);
+        Debug.Log("🧹 FULL RESET TRIGGERED");
+
+        // reset gameplay
+        level = 1;
+        score = 0;
+        placedSinceLevel = 0;
+
+        // reset speed
+        dropper.UpdateSpeed(level);
+
+        // clear local saves
+        PlayerPrefs.DeleteKey("PLAYER_LEVEL");
+        PlayerPrefs.DeleteKey("PLAYER_SPEED");
+        PlayerPrefs.DeleteKey("BEST_SCORE");
+        PlayerPrefs.Save();
+
+        // reset combo
+        ResetCombo();
+
+        // update UI
+        uiManager.UpdateLevel(level);
+        uiManager.UpdateScore(score);
+
+        // 🔥 CLEAR LEADERBOARD (Firebase)
+        if (LeaderboardManager.Instance != null)
+        {
+            LeaderboardManager.Instance.ClearLeaderboardForTesting();
+        }
+
+        Debug.Log("✅ Everything reset");
     }
 
+    public void ResetLevel()
+    {
+        level = 1;
+        UIManager.Instance.UpdateLevel(level);
+    }
 
     public void AddScore(int amount)
     {

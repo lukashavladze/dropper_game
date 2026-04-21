@@ -31,11 +31,18 @@ public class UIManager : MonoBehaviour
     public Image planetImage_arrive;
     public Sprite[] planetIcons;   // same order as planets[]
 
+    private Coroutine pulseRoutine;
+
 
     public string[] planets = {
     "Mercury", "Venus", "Earth", "Mars", "Jupiter",
     "Saturn", "Uranus", "Neptune", "Pluto"
 };
+
+
+    [Header("Combo UI")]
+    public TextMeshProUGUI comboText;
+    public CanvasGroup comboCanvas;
 
 
 
@@ -66,6 +73,70 @@ public class UIManager : MonoBehaviour
     void HideLevelUp()
     {
         LevelUpPanel.SetActive(false);
+    }
+
+    public void UpdateCombo(int combo, int multiplier)
+    {
+        if (comboText == null || comboCanvas == null) return;
+
+        if (combo <= 1)
+        {
+            comboCanvas.alpha = 0f;
+
+            if (pulseRoutine != null)
+            {
+                StopCoroutine(pulseRoutine);
+                pulseRoutine = null;
+            }
+
+            return;
+        }
+
+        comboCanvas.alpha = 1f;
+        comboText.text = multiplier + "x!";
+
+        // color progression
+        if (multiplier < 3)
+            comboText.color = Color.yellow;
+        else if (multiplier < 5)
+            comboText.color = new Color(1f, 0.5f, 0f);
+        else
+            comboText.color = Color.red;
+
+        // start pulsating if not already running
+        if (pulseRoutine == null)
+        {
+            pulseRoutine = StartCoroutine(ComboPulse());
+        }
+    }
+
+    IEnumerator ComboPulse()
+    {
+        while (true)
+        {
+            float t = 0f;
+
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime * 4f;
+                float scale = Mathf.Lerp(1f, 1.2f, Mathf.Sin(t * Mathf.PI));
+                comboText.transform.localScale = Vector3.one * scale;
+                yield return null;
+            }
+        }
+    }
+
+    private IEnumerator ComboPop()
+    {
+        comboText.transform.localScale = Vector3.one * 1.4f;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 8f;
+            comboText.transform.localScale = Vector3.Lerp(Vector3.one * 1.4f, Vector3.one, t);
+            yield return null;
+        }
     }
 
 
@@ -188,22 +259,6 @@ public class UIManager : MonoBehaviour
         });
     }
 
-    //public void OnContinueButton()
-    //{
-    //    // show ad; on completion if rewarded -> continue
-    //    LevelPlayAdsManager.Instance.ShowRewarded(watched =>
-    //    {
-    //        if (watched)
-    //        {
-    //            GameManager.Instance.ContinueGame();
-    //        }
-    //        else
-    //        {
-    //            // optional: show message "Ad not ready" or re-show continue panel
-    //            UIManager.Instance.ShowAdNotAvailablePopup(); // implement if you like
-    //        }
-    //    });
-    //}
 
     public void UpdatePlanet(int level)
     {

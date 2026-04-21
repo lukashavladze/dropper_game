@@ -8,7 +8,7 @@ public class DropperController : MonoBehaviour
     public GameObject stonePrefab;
     public Transform spawnPoint;
     public float leftX = -5f, rightX = 5f;
-    public float baseSpeed = 5f;
+    public float baseSpeed = 2f;
     public float speedIncreasePerLevel = 0.3f;
 
     public float CurrentSpeed => moveSpeed;
@@ -62,7 +62,7 @@ public class DropperController : MonoBehaviour
 
     public void UpdateSpeed(int level)
     {
-        moveSpeed = baseSpeed + (level - 1) * speedIncreasePerLevel;
+        moveSpeed = baseSpeed + Mathf.Log(level + 1) * 2.5f;
     }
 
     public void SetSpeed(float newSpeed)

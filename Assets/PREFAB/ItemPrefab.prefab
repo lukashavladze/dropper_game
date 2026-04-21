@@ -426,6 +426,7 @@ GameObject:
   - component: {fileID: 549416253841388910}
   - component: {fileID: 3444186082853776721}
   - component: {fileID: 8524308279992900566}
+  - component: {fileID: 8580050308782807144}
   m_Layer: 5
   m_Name: ItemPrefab
   m_TagString: Untagged
@@ -539,6 +540,23 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &8580050308782807144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6995945565981539188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0a2e9f006e22254687309eec1814f9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LeaderboardItemUI
+  rankText: {fileID: 2151651778964962019}
+  nameText: {fileID: 8039980149000728551}
+  scoreText: {fileID: 1435547604681621266}
+  background: {fileID: 549416253841388910}
+  rankCircle: {fileID: 3662777638975341496}
 --- !u!1 &8158139455992194733
 GameObject:
   m_ObjectHideFlags: 0

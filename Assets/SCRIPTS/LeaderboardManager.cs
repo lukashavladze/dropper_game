@@ -45,13 +45,22 @@ public class LeaderboardManager : MonoBehaviour
         }
 
         string userId = SystemInfo.deviceUniqueIdentifier;
-        string name = "Player_" + Random.Range(1000, 9999);
+        string name = "luka"; // 🔥 keep stable for now
 
         db.Child("leaderboard").Child(userId).GetValueAsync()
         .ContinueWithOnMainThread(task =>
         {
-            if (!task.IsCompleted || task.Result == null)
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Read failed: " + task.Exception);
                 return;
+            }
+
+            if (!task.IsCompleted)
+            {
+                Debug.LogWarning("⚠️ Read not completed");
+                return;
+            }
 
             if (task.Result.Exists)
             {
@@ -73,28 +82,77 @@ public class LeaderboardManager : MonoBehaviour
         });
     }
 
+    public void ClearLeaderboardForTesting()
+    {
+        if (db == null)
+        {
+            Debug.LogWarning("DB not ready");
+            return;
+        }
+
+        db.Child("leaderboard").RemoveValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted)
+            {
+                Debug.Log("🔥 Leaderboard CLEARED");
+
+                // refresh UI if open
+                OnScoreSaved?.Invoke();
+            }
+            else
+            {
+                Debug.LogError("Failed to clear leaderboard");
+            }
+        });
+    }
+
     public void LoadTopScores(System.Action<List<LeaderEntry>> callback)
     {
+        if (db == null)
+        {
+            Debug.LogError("❌ DB is NULL when loading scores!");
+            return;
+        }
+
         db.Child("leaderboard")
           .OrderByChild("score")
           .LimitToLast(10)
           .GetValueAsync()
           .ContinueWithOnMainThread(task =>
           {
-              if (!task.IsCompleted || task.Result == null)
+              if (task.IsFaulted)
+              {
+                  Debug.LogError("❌ Load failed: " + task.Exception);
                   return;
+              }
+
+              if (!task.IsCompleted)
+              {
+                  Debug.LogWarning("⚠️ Load not completed");
+                  return;
+              }
+
+              if (task.Result == null || !task.Result.Exists)
+              {
+                  Debug.LogWarning("⚠️ No leaderboard data found");
+                  callback?.Invoke(new List<LeaderEntry>());
+                  return;
+              }
+
+              Debug.Log("✅ Firebase data received!");
 
               var list = new List<LeaderEntry>();
 
               foreach (var child in task.Result.Children)
               {
-                  string name = child.Child("name").Value.ToString();
+                  Debug.Log("👉 Raw entry: " + child.GetRawJsonValue());
+
+                  string name = child.Child("name").Value?.ToString() ?? "Unknown";
                   int score = int.Parse(child.Child("score").Value.ToString());
 
                   list.Add(new LeaderEntry(name, score));
               }
 
-              // Firebase returns ascending → reverse
               list.Sort((a, b) => b.score.CompareTo(a.score));
 
               callback?.Invoke(list);
