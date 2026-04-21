@@ -324,6 +324,15 @@ public class GameManager : MonoBehaviour
         Debug.Log("✅ Everything reset");
     }
 
+    public float GetLevelProgress01()
+    {
+        int required = GetBlocksRequiredForLevel(level);
+        return (float)placedSinceLevel / required;
+    }
+
+    public int GetBlocksPlaced() => placedSinceLevel;
+    public int GetBlocksRequired() => GetBlocksRequiredForLevel(level);
+
     public void ResetLevel()
     {
         level = 1;
