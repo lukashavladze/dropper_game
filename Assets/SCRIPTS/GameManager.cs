@@ -30,12 +30,19 @@ public class GameManager : MonoBehaviour
 
     private const string SaveKey_Level = "PLAYER_LEVEL";
     private const string SaveKey_Speed = "PLAYER_SPEED";
+    public GameObject scorePopupPrefab;
 
     // 🔥 COMBO SYSTEM
     private int comboCount = 0;
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
@@ -131,6 +138,21 @@ public class GameManager : MonoBehaviour
     // NORMAL PLACEMENT
     // =========================
 
+    void SpawnScorePopup(Vector3 pos, int amount)
+    {
+        if (scorePopupPrefab == null) return;
+        if (isGameOver) return;
+
+        // 🔥 LEFT SIDE SPAWN
+        Vector3 spawnPos = pos + new Vector3(-0.6f, 0.3f, -1f);
+
+        GameObject go = Instantiate(scorePopupPrefab, spawnPos, Quaternion.identity);
+
+        var popup = go.GetComponent<ScorePopup>();
+        if (popup != null)
+            popup.Setup(amount);
+    }
+
     public void OnPlacedSuccessful(int placedCount, GameObject stone)
     {
         // ❗ RESET COMBO
@@ -138,6 +160,7 @@ public class GameManager : MonoBehaviour
 
         score += 1;
         uiManager.UpdateScore(score);
+        SpawnScorePopup(stone.transform.position, 1); 
         PlaySound(placedSound);
 
         MoveDropperUp(stone);
@@ -161,11 +184,12 @@ public class GameManager : MonoBehaviour
         int multiplier = GetComboMultiplier();
         if (multiplier >= 3)
         {
-            CameraShake.ShakeSafe(0.25f, 0.4f);
+            CameraShake.ShakeSafe(0.10f, 0.15f);
         }
         int bonus = 10 * comboCount * comboCount;
 
         AddScore(bonus);
+        SpawnScorePopup(stone.transform.position, bonus); 
 
         UIManager.Instance?.UpdateCombo(comboCount, multiplier);
 
@@ -211,13 +235,13 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
 
             Debug.Log($"Level UP → {level}");
+
+            // 🔥 reset progress AFTER level up
+            uiManager.UpdateProgress(0f);
         }
-        else
-        {
-            PlayerPrefs.SetInt(SaveKey_Level, level);
-            PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
-            PlayerPrefs.Save();
-        }
+
+        // 🔥 ALWAYS update progress (this is the key fix)
+        uiManager.UpdateProgress(GetLevelProgress01());
     }
 
     int GetBlocksRequiredForLevel(int lvl)

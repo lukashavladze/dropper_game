@@ -33,6 +33,13 @@ public class UIManager : MonoBehaviour
 
     private Coroutine pulseRoutine;
 
+    [Header("Level Progress")]
+    public Image progressFill;
+    public TextMeshProUGUI progressText;
+
+    private float currentProgress = 0f;
+    private Coroutine progressRoutine;
+
 
     public string[] planets = {
     "Mercury", "Venus", "Earth", "Mars", "Jupiter",
@@ -137,6 +144,56 @@ public class UIManager : MonoBehaviour
             comboText.transform.localScale = Vector3.Lerp(Vector3.one * 1.4f, Vector3.one, t);
             yield return null;
         }
+    }
+
+    public void UpdateProgress(float target)
+    {
+        if (progressFill == null) return;
+
+        // clamp safety
+        target = Mathf.Clamp01(target);
+
+        // avoid unnecessary animation (tiny difference)
+        if (Mathf.Abs(currentProgress - target) < 0.001f)
+            return;
+
+        if (progressRoutine != null)
+            StopCoroutine(progressRoutine);
+
+        progressRoutine = StartCoroutine(AnimateProgress(target));
+    }
+
+    IEnumerator AnimateProgress(float target)
+    {
+        float start = currentProgress;
+        float duration = 0.25f; // smoother & consistent
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            float t = elapsed / duration;
+
+            // smoother easing (feels better than linear)
+            t = t * t * (3f - 2f * t); // SmoothStep
+
+            currentProgress = Mathf.Lerp(start, target, t);
+            progressFill.fillAmount = currentProgress;
+
+            // optional text update
+            if (progressText != null && GameManager.Instance != null)
+            {
+                progressText.text = $"{GameManager.Instance.GetBlocksPlaced()}/{GameManager.Instance.GetBlocksRequired()}";
+            }
+
+            yield return null;
+        }
+
+        currentProgress = target;
+        progressFill.fillAmount = currentProgress;
+
+        progressRoutine = null;
     }
 
 
