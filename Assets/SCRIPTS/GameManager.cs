@@ -32,6 +32,8 @@ public class GameManager : MonoBehaviour
     private const string SaveKey_Speed = "PLAYER_SPEED";
     public GameObject scorePopupPrefab;
 
+    [SerializeField] GameObject perfectFlashPrefab;
+
     // 🔥 COMBO SYSTEM
     private int comboCount = 0;
 
@@ -186,10 +188,11 @@ public class GameManager : MonoBehaviour
         {
             CameraShake.ShakeSafe(0.10f, 0.15f);
         }
+
         int bonus = 10 * comboCount * comboCount;
 
         AddScore(bonus);
-        SpawnScorePopup(stone.transform.position, bonus); 
+        SpawnScorePopup(stone.transform.position, bonus);
 
         UIManager.Instance?.UpdateCombo(comboCount, multiplier);
 
@@ -197,10 +200,32 @@ public class GameManager : MonoBehaviour
 
         MoveDropperUp(stone);
 
-        if (perfectPlacementEffect != null)
+        // =========================
+        // 🔥 PERFECT FLASH FIXED
+        // =========================
+        if (perfectFlashPrefab != null)
         {
-            GameObject fx = Instantiate(perfectPlacementEffect, stone.transform.position, Quaternion.identity);
-            Destroy(fx, 2f);
+            var sr = stone.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                Bounds b = sr.bounds;
+
+                Vector3 pos = new Vector3(
+                    b.center.x,
+                    b.min.y + 0.01f, // tiny offset so it's visible
+                    stone.transform.position.z - 0.1f
+                );
+
+                float width = b.size.x;
+
+                GameObject fx = Instantiate(perfectFlashPrefab, pos, Quaternion.identity);
+
+                PerfectFlash flash = fx.GetComponent<PerfectFlash>();
+                if (flash != null)
+                {
+                    flash.Init(width);
+                }
+            }
         }
 
         Debug.Log($"🌟 PERFECT x{multiplier} (combo {comboCount})");
