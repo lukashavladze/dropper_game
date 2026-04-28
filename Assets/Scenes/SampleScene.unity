@@ -21839,7 +21839,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 680315632}
   leftX: -2
   rightX: 2
-  baseSpeed: 1
+  baseSpeed: 3
   speedIncreasePerLevel: 0.5
   currentStoneSkin: {fileID: 0}
 --- !u!212 &975458165
@@ -27583,6 +27583,7 @@ MonoBehaviour:
   fixedWiden: 0.1
   requireHorizontalOverlapForGameOver: 0
   gameOverVerticalMargin: 0.02
+  normalThreshold: 0.25
 --- !u!1 &1469221252
 GameObject:
   m_ObjectHideFlags: 0

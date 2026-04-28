@@ -29,13 +29,14 @@ public class GameManager : MonoBehaviour
     private AudioSource audioSource;
 
     private const string SaveKey_Level = "PLAYER_LEVEL";
-    private const string SaveKey_Speed = "PLAYER_SPEED";
     public GameObject scorePopupPrefab;
 
     [SerializeField] GameObject perfectFlashPrefab;
 
+    private int blocksSinceSpeedIncrease = 0;
+
     // 🔥 COMBO SYSTEM
-    private int comboCount = 0;
+    private int comboCount = 1;
 
     void Awake()
     {
@@ -64,15 +65,12 @@ public class GameManager : MonoBehaviour
 
             uiManager.UpdateLevel(level);
 
-            float savedSpeed = PlayerPrefs.GetFloat(SaveKey_Speed, DropperController.Instance.baseSpeed);
-            dropper.SetSpeed(savedSpeed);
         }
         else
         {
             level = 1;
             placedSinceLevel = 0;
             uiManager.UpdateLevel(level);
-            dropper.UpdateSpeed(level);
         }
     }
 
@@ -91,8 +89,8 @@ public class GameManager : MonoBehaviour
 
     void ResetCombo()
     {
-        comboCount = 0;
-        UIManager.Instance?.UpdateCombo(0, 1);
+        comboCount = 1;
+        UIManager.Instance?.UpdateCombo(1, 1);
     }
 
     int GetComboMultiplier()
@@ -159,6 +157,10 @@ public class GameManager : MonoBehaviour
     {
         // ❗ RESET COMBO
         ResetCombo();
+        if (placedCount > 1)
+        {
+            CameraShake.ShakeSafe(0.10f, 0.15f);
+        }
 
         score += 1;
         uiManager.UpdateScore(score);
@@ -169,6 +171,8 @@ public class GameManager : MonoBehaviour
 
         backgroundManager.UpdateTheme(level);
 
+        HandleBlockPlaced();
+        StackManager.Instance.WorsenPrecision();
         HandleLevelProgression();
     }
 
@@ -181,15 +185,15 @@ public class GameManager : MonoBehaviour
         PlaySound(perfectSound);
 
         // 🔥 COMBO INCREASE
-        comboCount++;
+        if (comboCount <= 9)
+        {
+            comboCount++;
+        }
+        
 
         int multiplier = GetComboMultiplier();
-        if (multiplier >= 3)
-        {
-            CameraShake.ShakeSafe(0.10f, 0.15f);
-        }
 
-        int bonus = 10 * comboCount * comboCount;
+        int bonus = Mathf.Max(1, comboCount * comboCount);
 
         AddScore(bonus);
         SpawnScorePopup(stone.transform.position, bonus);
@@ -227,10 +231,59 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (comboCount >= 5)
+        {
+            StackManager.Instance.ImprovePrecision();
+        }
+
 
         Debug.Log($"🌟 PERFECT x{multiplier} (combo {comboCount})");
 
+        HandleBlockPlaced();
+
         HandleLevelProgression();
+
+    }
+
+
+    public int GetCombo()
+    {
+        return comboCount;
+    }
+
+    private void HandleBlockPlaced()
+    {
+        blocksSinceSpeedIncrease++;
+
+        if (blocksSinceSpeedIncrease >= 3)
+        {
+            blocksSinceSpeedIncrease = 0;
+
+            if (DropperController.Instance != null)
+            {
+                DropperController.Instance.IncreaseSpeedSmall();
+            }
+        }
+    }
+    public void OnNormalPlacement(int placedCount, GameObject stone)
+    {
+        // ❗ DO NOT RESET COMBO
+        // ❗ DO NOT INCREASE COMBO
+
+        int bonus = Mathf.Max(1, comboCount * comboCount);
+
+        AddScore(bonus);
+        SpawnScorePopup(stone.transform.position, bonus);
+
+        PlaySound(placedSound);
+        
+
+        MoveDropperUp(stone);
+        backgroundManager.UpdateTheme(level);
+
+        HandleLevelProgression();
+
+        HandleBlockPlaced();
     }
 
     // =========================
@@ -254,9 +307,6 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateLevel(level);
             uiManager.ShowLevelUp(level);
 
-            dropper.UpdateSpeed(level);
-
-            PlayerPrefs.SetFloat(SaveKey_Speed, dropper.CurrentSpeed);
             PlayerPrefs.Save();
 
             Debug.Log($"Level UP → {level}");
@@ -332,7 +382,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        StackManager.Instance.ResetStackWidthToOriginal();
+        StackManager.Instance.ResetStackWidthToOriginal(); 
         DropperController.Instance.SpawnStone();
 
         uiManager.HideGameOver();
@@ -348,12 +398,9 @@ public class GameManager : MonoBehaviour
         score = 0;
         placedSinceLevel = 0;
 
-        // reset speed
-        dropper.UpdateSpeed(level);
 
         // clear local saves
         PlayerPrefs.DeleteKey("PLAYER_LEVEL");
-        PlayerPrefs.DeleteKey("PLAYER_SPEED");
         PlayerPrefs.DeleteKey("BEST_SCORE");
         PlayerPrefs.Save();
 

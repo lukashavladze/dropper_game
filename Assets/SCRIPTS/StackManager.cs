@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public class StackManager : MonoBehaviour
@@ -23,7 +24,8 @@ public class StackManager : MonoBehaviour
     public float gameOverVerticalMargin = 0.02f;
 
     public float NextStoneWidth { get; private set; }
-    
+    public float normalThreshold = 0.25f; // tweak this
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -98,6 +100,20 @@ public class StackManager : MonoBehaviour
         }
     }
 
+    public void WorsenPrecision()
+    {
+        float old = perfectThreshold;
+        perfectThreshold = Mathf.Max(0.05f, perfectThreshold - 0.005f);
+        Debug.Log($"🎯 PERFECT THRESHOLD SHRINK → {old:F3} → {perfectThreshold:F3}");
+    }
+
+    public void ImprovePrecision()
+    {
+        float old = perfectThreshold;
+        perfectThreshold = Mathf.Min(0.15f, perfectThreshold + 0.01f); // cap max
+        Debug.Log($"🎯 PERFECT THRESHOLD GROW → {old:F3} → {perfectThreshold:F3}");
+    }
+
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
     {
         yield return null;
@@ -155,6 +171,7 @@ public class StackManager : MonoBehaviour
         }
 
         bool isPerfect = absDx <= perfectThreshold;
+        bool isNormal = absDx > perfectThreshold && absDx <= normalThreshold;
 
         // Snap on top
         float topTop = top.transform.position.y + topHeight * 0.5f;
@@ -167,7 +184,14 @@ public class StackManager : MonoBehaviour
         // width logic
         if (isPerfect)
         {
-            float newWidth = Mathf.Clamp(NextStoneWidth + fixedWiden, minStoneWidth, originalStoneWidth);
+            Debug.Log($"🌟 PERFECT HIT → dx={absDx:F3}, threshold={perfectThreshold:F3}, combo={GameManager.Instance?.GetCombo()}");
+            float newWidth = NextStoneWidth;
+
+            if (GameManager.Instance != null && GameManager.Instance.GetCombo() >= 5)
+            {
+                newWidth = Mathf.Clamp(NextStoneWidth + fixedWiden, minStoneWidth, originalStoneWidth);
+            }
+
             ApplyWidthToStone(stone, newWidth);
             ApplyWidthToStone(top, newWidth);
             NextStoneWidth = newWidth;
@@ -175,19 +199,31 @@ public class StackManager : MonoBehaviour
             GameManager.Instance?.OnPerfectPlacement(stack.Count, stone);
             UIManager.Instance?.ShowPerfectText();
         }
+        else if (isNormal)
+        {
+            Debug.Log($"🟡 NORMAL HIT → dx={absDx:F3}, perfect<{perfectThreshold:F3}, normal<{normalThreshold:F3}");
+            // 🔥 NO WIDTH CHANGE
+            ApplyWidthToStone(stone, NextStoneWidth);
+            ApplyWidthToStone(top, NextStoneWidth);
+
+            GameManager.Instance?.OnNormalPlacement(stack.Count, stone);
+        }
         else
         {
+            Debug.Log($"❌ BAD HIT → dx={absDx:F3}, > normalThreshold={normalThreshold:F3}");
             float newWidth = Mathf.Clamp(NextStoneWidth - fixedShrink, minStoneWidth, originalStoneWidth);
             ApplyWidthToStone(stone, newWidth);
             ApplyWidthToStone(top, newWidth);
             NextStoneWidth = newWidth;
 
             GameManager.Instance?.OnPlacedSuccessful(stack.Count, stone);
+           
         }
 
         // ensure next spawn (safety)
         DropperController.Instance?.SpawnNextStoneDelayed(0.08f);
     }
+
 
     public IEnumerator CheckMissWhileFalling(GameObject stone)
     {
@@ -237,6 +273,7 @@ public class StackManager : MonoBehaviour
     {
         return stack.Contains(stone);
     }
+
 
     public GameObject GetLastStone() => stack.Count == 0 ? null : stack[stack.Count - 1];
     public int GetStackCount() => stack.Count;

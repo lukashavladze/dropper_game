@@ -60,14 +60,12 @@ public class DropperController : MonoBehaviour
         }
     }
 
-    public void UpdateSpeed(int level)
-    {
-        moveSpeed = baseSpeed + Mathf.Log(level + 1) * 2.5f;
-    }
 
-    public void SetSpeed(float newSpeed)
+    public void IncreaseSpeedSmall()
     {
-        moveSpeed = newSpeed;
+        baseSpeed += 0.15f;
+        moveSpeed = baseSpeed;
+        Debug.Log($"🚀 SPEED INCREASE → baseSpeed={baseSpeed}, moveSpeed={moveSpeed}");
     }
 
     void Move()
@@ -77,8 +75,20 @@ public class DropperController : MonoBehaviour
         if (transform.position.x > rightX) direction = -1;
         if (transform.position.x < leftX) direction = 1;
 
-        if (currentStone)
-            currentStone.transform.position = spawnPoint.position;
+            if (currentStone)
+            {
+                var sr = currentStone.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    float halfHeight = sr.bounds.size.y * 0.1f;
+
+                    currentStone.transform.position = new Vector3(
+                        spawnPoint.position.x,
+                        spawnPoint.position.y - halfHeight, // 🔥 align top
+                        spawnPoint.position.z
+                    );
+                }
+            }
     }
 
     public void SpawnStone()
