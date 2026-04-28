@@ -24,11 +24,8 @@ public class UnityAdsManager : MonoBehaviour,
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-#if UNITY_EDITOR
-            Debug.Log("🎬 Ads disabled in Editor (use fake rewards)");
-            return;
 
-#elif UNITY_ANDROID
+#if UNITY_ANDROID
             rewardedAdUnitId = androidRewardedId;
             Advertisement.Initialize(androidGameId, true, this);
 #elif UNITY_IOS
@@ -62,11 +59,6 @@ public class UnityAdsManager : MonoBehaviour,
     public void ShowRewarded(Action<bool> onResult)
     {
         
-#if UNITY_EDITOR
-        Debug.Log("🎬 FAKE AD SUCCESS (Editor)");
-        onResult?.Invoke(true);
-        return;
-#endif
         _onAdResult = onResult;
 
         if (Advertisement.isInitialized)

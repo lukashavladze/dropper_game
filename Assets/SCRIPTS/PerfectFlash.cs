@@ -37,10 +37,11 @@ public class PerfectFlash : MonoBehaviour
         time += Time.deltaTime;
         float t = time / duration;
 
-        // smoother animation
-        float curve = t * t * (3f - 2f * t);
-
+       
+        float curve = 1f - Mathf.Pow(1f - t, 3f);
+        // xazis sigane
         float width = Mathf.Lerp(targetWidth * 0.4f, targetWidth, curve);
+        // siske/simagle
         float height = Mathf.Lerp(0.12f, 0.02f, curve);
 
         transform.localScale = new Vector3(width, height, 1f);
