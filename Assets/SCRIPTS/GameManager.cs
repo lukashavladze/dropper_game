@@ -91,6 +91,7 @@ public class GameManager : MonoBehaviour
     {
         comboCount = 1;
         UIManager.Instance?.UpdateCombo(1, 1);
+        BloomController.Instance?.SetTarget(3f, 0.5f);
     }
 
     int GetComboMultiplier()
@@ -189,7 +190,17 @@ public class GameManager : MonoBehaviour
         {
             comboCount++;
         }
-        
+
+        if (comboCount >= 10)
+            BloomController.Instance?.SetTarget(50f, 0.9f);
+        else if (comboCount >= 7)
+            BloomController.Instance?.SetTarget(30f, 0.7f);
+        else if (comboCount >= 5)
+            BloomController.Instance?.SetTarget(20f, 0.7f);
+        else if (comboCount >= 3)
+            BloomController.Instance?.SetTarget(10f, 0.7f);
+        else
+            BloomController.Instance?.SetTarget(2f, 0.5f);
 
         int multiplier = GetComboMultiplier();
 
