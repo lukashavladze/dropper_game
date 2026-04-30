@@ -91,7 +91,25 @@ public class GameManager : MonoBehaviour
     {
         comboCount = 1;
         UIManager.Instance?.UpdateCombo(1, 1);
-        BloomController.Instance?.SetTarget(3f, 0.5f);
+        BloomController.Instance?.SetTarget(3f, 0.6f);
+    }
+
+    Color GetComboColor(int combo)
+    {
+        // normalize combo (1 → 10)
+        float t = Mathf.InverseLerp(1, 10, combo);
+
+        // gradient: blue → cyan → green → yellow → red
+        if (t < 0.25f)
+            return Color.Lerp(new Color(0.2f, 0.4f, 1f), Color.cyan, t / 0.25f);
+
+        if (t < 0.5f)
+            return Color.Lerp(Color.cyan, Color.green, (t - 0.25f) / 0.25f);
+
+        if (t < 0.75f)
+            return Color.Lerp(Color.green, Color.yellow, (t - 0.5f) / 0.25f);
+
+        return Color.Lerp(Color.yellow, Color.red, (t - 0.75f) / 0.25f);
     }
 
     int GetComboMultiplier()
@@ -191,16 +209,24 @@ public class GameManager : MonoBehaviour
             comboCount++;
         }
 
+        //Color c = GetComboColor(comboCount);
+        //BloomController.Instance?.SetColor(c);
+        //BloomController.Instance?.AnimateColor(c);
+        BloomController.Instance?.SetTarget(10f, 0.7f);
+        BloomController.Instance?.Pulse(40f, 0.8f);
+
+
+
         if (comboCount >= 10)
-            BloomController.Instance?.SetTarget(50f, 0.9f);
-        else if (comboCount >= 7)
-            BloomController.Instance?.SetTarget(30f, 0.7f);
-        else if (comboCount >= 5)
-            BloomController.Instance?.SetTarget(20f, 0.7f);
-        else if (comboCount >= 3)
-            BloomController.Instance?.SetTarget(10f, 0.7f);
+            BloomController.Instance?.SetTarget(20f, 0.9f);
+        //else if (comboCount >= 7)
+        //    BloomController.Instance?.SetTarget(10f, 0.7f);
+        //else if (comboCount >= 5)
+        //    BloomController.Instance?.SetTarget(7f, 0.7f);
+        //else if (comboCount >= 3)
+        //    BloomController.Instance?.SetTarget(5f, 0.7f);
         else
-            BloomController.Instance?.SetTarget(2f, 0.5f);
+            BloomController.Instance?.SetTarget(7f, 0.5f);
 
         int multiplier = GetComboMultiplier();
 
