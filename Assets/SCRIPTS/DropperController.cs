@@ -22,6 +22,9 @@ public class DropperController : MonoBehaviour
     public Sprite currentStoneSkin;
     private float moveSpeed;
 
+    [Header("Stone Skins")]
+    public Sprite[] stoneSprites;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -99,10 +102,15 @@ public class DropperController : MonoBehaviour
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
 
         // Apply skin if set
-        if (currentStoneSkin != null)
+        var sr2 = currentStone.GetComponent<SpriteRenderer>();
+
+        if (sr2 != null && stoneSprites.Length > 0)
         {
-            var sr2 = currentStone.GetComponent<SpriteRenderer>();
-            if (sr2 != null) sr2.sprite = currentStoneSkin;
+            int index = Random.Range(0, stoneSprites.Length);
+            sr2.sprite = stoneSprites[index];
+
+            // 🔥 store color for later (VERY IMPORTANT)
+            currentStoneSkin = stoneSprites[index];
         }
 
         var sr = currentStone.GetComponent<SpriteRenderer>();

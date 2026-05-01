@@ -294,24 +294,21 @@ public class UIManager : MonoBehaviour
 
     public void OnContinueButton()
     {
-        if (UnityAdsManager.Instance == null)
+        if (AdManager.Instance == null)
         {
-            Debug.LogWarning("RewardedAdsManager.Instance is null – continuing without ad.");
             GameManager.Instance.ContinueGame();
             return;
         }
 
-        // Show rewarded ad; continue only if user actually watched
-        UnityAdsManager.Instance.ShowRewarded(watched =>
+        AdManager.Instance.ShowRewarded(success =>
         {
-            if (watched)
+            if (success)
             {
                 GameManager.Instance.ContinueGame();
             }
             else
             {
-                // Optional: show popup "Ad not available" or similar
-                Debug.Log("Continue cancelled – ad not watched or not available.");
+                Debug.Log("Ad not available");
             }
         });
     }

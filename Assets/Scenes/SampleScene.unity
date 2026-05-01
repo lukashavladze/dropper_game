@@ -21904,6 +21904,11 @@ MonoBehaviour:
   baseSpeed: 3
   speedIncreasePerLevel: 0.5
   currentStoneSkin: {fileID: 0}
+  stoneSprites:
+  - {fileID: 8166710274925509176, guid: 6b2dc4074b1940e4b9d581981325bfe0, type: 3}
+  - {fileID: -2615874204119335, guid: c610d98a269e46b4c86d7d0a664cf8f1, type: 3}
+  - {fileID: -8425141836431729757, guid: cbc1bd3b6d07ffd489b64968144dd155, type: 3}
+  - {fileID: -2093324750932669864, guid: 88f3e785fb83c7241ad3e364ab83b6d3, type: 3}
 --- !u!212 &975458165
 SpriteRenderer:
   serializedVersion: 2

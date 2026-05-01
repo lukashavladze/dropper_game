@@ -3,6 +3,9 @@
     "displayName": "Unity Package",
     "packageURL": "https://github.com/ironsource-mobile/Unity-sdk/raw/master/${VERSION}/UnityLevelPlay_v${VERSION}.unitypackage",
     "versions": {
+      "9.4.1": {
+        "ironSourceSdkVersion": "[9.4.0, 10.0["
+      },
       "9.4.0": {
         "ironSourceSdkVersion": "[9.4.0, 10.0["
       },
@@ -28,8 +31,13 @@
     "dependencyXmlURL": "https://s3.amazonaws.com/ssa.public/Dependencies-xmls/IronSource/${VERSION}/IronSourceSDKDependencies.xml",
     "dependencyXmlFileName": "IronSourceSDKDependencies.xml",
     "SKAdNetworkIdXmlURL": "https://s3.amazonaws.com/ssa.public/Unity/SKAdNetwork-IDs/All/skadnetworks.ironsource.plist.xml",
-    "updateMessage": "LevelPlay SDK 9.4.0 update: a new version of the LevelPlay SDK is now available. Update your Unity package from\nPackage Manager (Ads Mediation UPM Package) or from the LevelPlay Network Manager (UPM or Unity Plugin).\nFor more info about improvements in this release and to get started, please visit the changelog and documentation:\n<a href=\"https://docs.unity.com/grow/levelplay/sdk/unity/changelog/\">https://docs.unity.com/grow/levelplay/sdk/unity/changelog/</a>\n<a href=\"https://docs.unity.com/grow/levelplay/sdk/unity/get-started/\">https://docs.unity.com/grow/levelplay/sdk/unity/get-started/</a>",
+    "updateMessage": "LevelPlay SDK 9.4.1 update: a new version of the LevelPlay SDK is now available. Update your Unity package from\nPackage Manager (Ads Mediation UPM Package) or from the LevelPlay Network Manager (UPM or Unity Plugin).\nFor more info about improvements in this release and to get started, please visit the changelog and documentation:\n<a href=\"https://docs.unity.com/grow/levelplay/sdk/unity/changelog/\">https://docs.unity.com/grow/levelplay/sdk/unity/changelog/</a>\n<a href=\"https://docs.unity.com/grow/levelplay/sdk/unity/get-started/\">https://docs.unity.com/grow/levelplay/sdk/unity/get-started/</a>",
     "versions": {
+      "9.4.1": {
+        "androidSdkVersion": "9.4.1",
+        "iosSdkVersion": "9.4.1.0",
+        "message": "You are using LevelPlay SDK 9.4.1.\nThis version includes a streamlined API, improved clarity, and removal of deprecated components for a\nsmoother developer experience. For more information about the improvements in this release,\nplease visit the changelog and updated documentation:\n<a href=\"https://docs.unity.com/grow/levelplay/sdk/unity/changelog/\">https://docs.unity.com/grow/levelplay/sdk/unity/changelog/</a>\n<a href=\"https://docs.unity.com/grow/levelplay/sdk/unity/get-started/\">https://docs.unity.com/grow/levelplay/sdk/unity/get-started/</a>"
+      },
       "9.4.0": {
         "androidSdkVersion": "9.4.0",
         "iosSdkVersion": "9.4.0.0",
@@ -1058,6 +1066,17 @@
       "dependencyXmlFileName": "ISVungleAdapterDependencies.xml",
       "SKAdNetworkIdXmlURL": "https://s3.amazonaws.com/ssa.public/Unity/SKAdNetwork-IDs/All/skadnetworks.liftoff.plist.xml",
       "versions": {
+        "5.12.0.0": {
+          "ironSourceSdkVersion": "[9.0.0, 10.0[",
+          "android": {
+            "adapterVersion": "5.8.0",
+            "adNetworkVersion": "7.7.3"
+          },
+          "ios": {
+            "adapterVersion": "5.7.0.0",
+            "adNetworkVersion": "7.7.2"
+          }
+        },
         "5.11.0.0": {
           "ironSourceSdkVersion": "[9.0.0, 10.0[",
           "android": {
@@ -1314,6 +1333,17 @@
       "dependencyXmlFileName": "ISMintegralAdapterDependencies.xml",
       "SKAdNetworkIdXmlURL": "https://s3.amazonaws.com/ssa.public/Unity/SKAdNetwork-IDs/All/skadnetworks.mintegral.plist.xml",
       "versions": {
+        "5.18.0.0": {
+          "ironSourceSdkVersion": "[9.0.0, 10.0[",
+          "android": {
+            "adapterVersion": "5.12.0",
+            "adNetworkVersion": "17.1.51"
+          },
+          "ios": {
+            "adapterVersion": "5.12.0.0",
+            "adNetworkVersion": "8.1.2"
+          }
+        },
         "5.17.0.0": {
           "ironSourceSdkVersion": "[9.0.0, 10.0[",
           "android": {

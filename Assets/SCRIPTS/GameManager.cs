@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject perfectFlashPrefab;
 
     private int blocksSinceSpeedIncrease = 0;
+    private int flashCount = 0;
 
     // 🔥 COMBO SYSTEM
     private int comboCount = 1;
@@ -205,31 +206,18 @@ public class GameManager : MonoBehaviour
 
         // 🔥 COMBO INCREASE
         if (comboCount <= 9)
-        {
             comboCount++;
-        }
 
-        //Color c = GetComboColor(comboCount);
-        //BloomController.Instance?.SetColor(c);
-        //BloomController.Instance?.AnimateColor(c);
+        // 🔥 BLOOM FX
         BloomController.Instance?.SetTarget(10f, 0.7f);
         BloomController.Instance?.Pulse(40f, 0.8f);
 
-
-
         if (comboCount >= 10)
-            BloomController.Instance?.SetTarget(20f, 0.9f);
-        //else if (comboCount >= 7)
-        //    BloomController.Instance?.SetTarget(10f, 0.7f);
-        //else if (comboCount >= 5)
-        //    BloomController.Instance?.SetTarget(7f, 0.7f);
-        //else if (comboCount >= 3)
-        //    BloomController.Instance?.SetTarget(5f, 0.7f);
+            BloomController.Instance?.SetTarget(15f, 0.7f);
         else
             BloomController.Instance?.SetTarget(7f, 0.5f);
 
         int multiplier = GetComboMultiplier();
-
         int bonus = Mathf.Max(1, comboCount * comboCount);
 
         AddScore(bonus);
@@ -238,48 +226,50 @@ public class GameManager : MonoBehaviour
         UIManager.Instance?.UpdateCombo(comboCount, multiplier);
 
         StartCoroutine(PerfectBounce(stone.transform));
-
         MoveDropperUp(stone);
 
         // =========================
-        // 🔥 PERFECT FLASH FIXED
+        // 🔥 PERFECT IMPACT FX (COLOR MATCHED)
         // =========================
         if (perfectFlashPrefab != null)
         {
             var sr = stone.GetComponent<SpriteRenderer>();
+
             if (sr != null)
             {
                 Bounds b = sr.bounds;
+                float halfHeight = sr.bounds.extents.y;
 
                 Vector3 pos = new Vector3(
-                    b.center.x,
-                    b.min.y + 0.01f, // tiny offset so it's visible
-                    stone.transform.position.z - 0.1f
-                );
-
-                float width = b.size.x;
+                stone.transform.position.x,
+                stone.transform.position.y - halfHeight - 0.02f,
+                stone.transform.position.z - 0.1f
+               );
 
                 GameObject fx = Instantiate(perfectFlashPrefab, pos, Quaternion.identity);
 
-                PerfectFlash flash = fx.GetComponent<PerfectFlash>();
-                if (flash != null)
+                Color color = GetColorFromSprite(sr.sprite);
+                color *= 3f;   // try 2–5 depending on look
+                color.a = 1f;
+
+                var systems = fx.GetComponentsInChildren<ParticleSystem>();
+
+                foreach (var ps in systems)
                 {
-                    flash.Init(width);
+                    var main = ps.main;
+                    main.startColor = color;
                 }
             }
         }
-        if (comboCount >= 5)
-        {
-            StackManager.Instance.ImprovePrecision();
-        }
 
+        // 🔥 GAMEPLAY BONUS
+        if (comboCount >= 5)
+            StackManager.Instance.ImprovePrecision();
 
         Debug.Log($"🌟 PERFECT x{multiplier} (combo {comboCount})");
 
         HandleBlockPlaced();
-
         HandleLevelProgression();
-
     }
 
 
@@ -423,6 +413,18 @@ public class GameManager : MonoBehaviour
         DropperController.Instance.SpawnStone();
 
         uiManager.HideGameOver();
+    }
+
+    Color GetColorFromSprite(Sprite sprite)
+    {
+        var skins = DropperController.Instance.stoneSprites;
+
+        if (sprite == skins[0]) return Color.red;
+        if (sprite == skins[1]) return Color.blue;
+        if (sprite == skins[2]) return Color.yellow;
+        if (sprite == skins[3]) return new Color(0.6f, 0f, 1f); // purple
+
+        return Color.white;
     }
 
     // need to DELETE AFTER DEVELOPMENT IS DONE
