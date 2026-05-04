@@ -313,11 +313,4 @@ public class UIManager : MonoBehaviour
         });
     }
 
-
-    public void UpdatePlanet(int level)
-    {
-        int index = Mathf.Clamp(level - 1, 0, planets.Length - 1);
-        planetText.text = planets[index];
-    }
-
 }

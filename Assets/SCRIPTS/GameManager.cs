@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
 
     [Header("References")]
     public DropperController dropper;
-    public BackgroundManager backgroundManager;
     public UIManager uiManager;
     public GameObject perfectPlacementEffect;
     public Transform dropperTransform;
@@ -138,7 +137,6 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         PlaySound(missSound);
 
-        UIManager.Instance.UpdatePlanet(level);
         UIManager.Instance.UpdateScoreGameover(score);
 
         int best = PlayerPrefs.GetInt("BEST_SCORE", 0);
@@ -191,8 +189,6 @@ public class GameManager : MonoBehaviour
         PlaySound(placedSound);
 
         MoveDropperUp(stone);
-
-        backgroundManager.UpdateTheme(level);
 
         HandleBlockPlaced();
         StackManager.Instance.WorsenPrecision();
@@ -321,7 +317,6 @@ public class GameManager : MonoBehaviour
         PlaySound(placedSound);
 
         MoveDropperUp(stone);
-        backgroundManager.UpdateTheme(level);
 
         HandleLevelProgression();
         HandleBlockPlaced();
@@ -437,6 +432,7 @@ public class GameManager : MonoBehaviour
         if (sprite == skins[1]) return Color.blue;
         if (sprite == skins[2]) return Color.yellow;
         if (sprite == skins[3]) return new Color(0.6f, 0f, 1f); // purple
+        if (sprite == skins[4]) return Color.green;
 
         return Color.white;
     }
