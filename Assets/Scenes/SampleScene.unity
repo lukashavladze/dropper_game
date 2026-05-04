@@ -7160,7 +7160,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 257, y: 10}
+  m_AnchoredPosition: {x: 257, y: -140}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &855285050
@@ -7185,7 +7185,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 22
+    m_FontSize: 34
     m_FontStyle: 3
     m_BestFit: 0
     m_MinSize: 0
@@ -27646,11 +27646,11 @@ MonoBehaviour:
   originalStoneWidth: 1
   minStoneWidth: 0.1
   perfectThreshold: 0.1
-  fixedShrink: 0.1
+  fixedShrink: 0.15
   fixedWiden: 0.1
   requireHorizontalOverlapForGameOver: 0
   gameOverVerticalMargin: 0.02
-  normalThreshold: 0.25
+  normalThreshold: 0.2
 --- !u!1 &1469221252
 GameObject:
   m_ObjectHideFlags: 0

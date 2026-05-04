@@ -35,9 +35,11 @@ public class GameManager : MonoBehaviour
 
     private int blocksSinceSpeedIncrease = 0;
     private int flashCount = 0;
+    
 
     // 🔥 COMBO SYSTEM
     private int comboCount = 1;
+    private int normalStreak = 0;
 
     void Awake()
     {
@@ -154,9 +156,6 @@ public class GameManager : MonoBehaviour
             rb.simulated = false;
     }
 
-    // =========================
-    // NORMAL PLACEMENT
-    // =========================
 
     void SpawnScorePopup(Vector3 pos, int amount)
     {
@@ -177,14 +176,18 @@ public class GameManager : MonoBehaviour
     {
         // ❗ RESET COMBO
         ResetCombo();
+        normalStreak = 0;
         if (placedCount > 1)
         {
-            CameraShake.ShakeSafe(0.10f, 0.15f);
+            CameraShake.ShakeSafe(0.15f, 0.20f);
         }
 
-        score += 1;
-        uiManager.UpdateScore(score);
-        SpawnScorePopup(stone.transform.position, 1); 
+        int baseScore = placedCount;
+        int multiplier = GetComboMultiplier();
+        int finalScore = baseScore * multiplier;
+
+        AddScore(finalScore);
+        SpawnScorePopup(stone.transform.position, finalScore); 
         PlaySound(placedSound);
 
         MoveDropperUp(stone);
@@ -200,10 +203,11 @@ public class GameManager : MonoBehaviour
     // PERFECT PLACEMENT
     // =========================
 
-    public void OnPerfectPlacement(int lvl, GameObject stone)
+    public void OnPerfectPlacement(int placedCount, GameObject stone)
     {
         PlaySound(perfectSound);
 
+        normalStreak = 0;
         // 🔥 COMBO INCREASE
         if (comboCount <= 9)
             comboCount++;
@@ -218,10 +222,12 @@ public class GameManager : MonoBehaviour
             BloomController.Instance?.SetTarget(7f, 0.5f);
 
         int multiplier = GetComboMultiplier();
-        int bonus = Mathf.Max(1, comboCount * comboCount);
+        int baseScore = placedCount;
 
-        AddScore(bonus);
-        SpawnScorePopup(stone.transform.position, bonus);
+        int finalScore = baseScore * multiplier; // perfect bonus
+
+        AddScore(finalScore);
+        SpawnScorePopup(stone.transform.position, finalScore);
 
         UIManager.Instance?.UpdateCombo(comboCount, multiplier);
 
@@ -294,22 +300,30 @@ public class GameManager : MonoBehaviour
     }
     public void OnNormalPlacement(int placedCount, GameObject stone)
     {
-        // ❗ DO NOT RESET COMBO
-        // ❗ DO NOT INCREASE COMBO
+        normalStreak++;
 
-        int bonus = Mathf.Max(1, comboCount * comboCount);
+        // ❗ reset combo if 2 normals in a row
+        if (normalStreak >= 2)
+        {
+            ResetCombo();
+            normalStreak = 0;
+        }
 
-        AddScore(bonus);
-        SpawnScorePopup(stone.transform.position, bonus);
+        int baseScore = placedCount; // 👈 NEW scoring system
+
+        int multiplier = GetComboMultiplier();
+        int finalScore = baseScore * multiplier;
+
+        AddScore(finalScore);
+
+        SpawnScorePopup(stone.transform.position, finalScore);
 
         PlaySound(placedSound);
-        
 
         MoveDropperUp(stone);
         backgroundManager.UpdateTheme(level);
 
         HandleLevelProgression();
-
         HandleBlockPlaced();
     }
 

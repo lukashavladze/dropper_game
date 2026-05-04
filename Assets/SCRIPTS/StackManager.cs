@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class StackManager : MonoBehaviour
 {
@@ -132,10 +134,15 @@ public class StackManager : MonoBehaviour
             GameObject platform = GameObject.FindGameObjectWithTag("Platform");
             if (platform == null) { GameManager.Instance?.OnMiss(stone); yield break; }
 
+            // CENTER X
+            Vector3 pos = stone.transform.position;
+            pos.x = platform.transform.position.x;
+            stone.transform.position = pos;
+
             float stoneBottom = stone.transform.position.y - stoneHeight * 0.5f;
             float platformTop = platform.transform.position.y + (platform.GetComponent<SpriteRenderer>() != null
                 ? platform.GetComponent<SpriteRenderer>().bounds.size.y * 0.5f
-                : 0.5f);
+: 0.5f);
 
             if (Mathf.Abs(stoneBottom - platformTop) > 0.4f)
             {
@@ -175,7 +182,17 @@ public class StackManager : MonoBehaviour
 
         // Snap on top
         float topTop = top.transform.position.y + topHeight * 0.5f;
-        stone.transform.position = new Vector3(top.transform.position.x, topTop + stoneHeight * 0.5f, stone.transform.position.z);
+        //stone.transform.position = new Vector3(top.transform.position.x, topTop + stoneHeight * 0.5f, stone.transform.position.z);
+        float targetX = stone.transform.position.x;
+        if (isPerfect)
+        {
+            targetX = top.transform.position.x;
+        }
+
+        stone.transform.position = new Vector3(
+            targetX,
+            topTop + stoneHeight * 0.5f,
+            stone.transform.position.z);
 
         // freeze stone and add
         rb.bodyType = RigidbodyType2D.Static;
