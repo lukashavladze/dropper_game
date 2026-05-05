@@ -144,6 +144,13 @@ public class GameManager : MonoBehaviour
         {
             PlayerPrefs.SetInt("BEST_SCORE", score);
             PlayerPrefs.Save();
+            // 🔥 NEW BEST
+            uiManager.UpdateBestScoreGameover(score);
+        }
+        else
+        {
+            // existing best
+            uiManager.UpdateBestScoreGameover(best);
         }
 
         LeaderboardManager.Instance.SaveScore(score);
@@ -340,8 +347,6 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt(SaveKey_Level, level);
             PlayerPrefs.Save();
 
-            uiManager.UpdateLevel(level);
-            uiManager.ShowLevelUp(level);
 
             PlayerPrefs.Save();
 
@@ -478,11 +483,6 @@ public class GameManager : MonoBehaviour
     public int GetBlocksPlaced() => placedSinceLevel;
     public int GetBlocksRequired() => GetBlocksRequiredForLevel(level);
 
-    public void ResetLevel()
-    {
-        level = 1;
-        UIManager.Instance.UpdateLevel(level);
-    }
 
     public void AddScore(int amount)
     {

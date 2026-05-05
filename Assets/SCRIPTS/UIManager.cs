@@ -251,6 +251,12 @@ public class UIManager : MonoBehaviour
         scoreCountText.text = score.ToString();
     }
 
+    public void UpdateBestScoreGameover(int score)
+    {
+        bestScoreCountText.text = score.ToString();
+    }
+
+
 
     public void UpdateLevel(int level)
     {
