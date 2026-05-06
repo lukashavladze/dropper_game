@@ -36,6 +36,18 @@ public class LeaderboardManager : MonoBehaviour
         Debug.Log("🏆 Leaderboard ready");
     }
 
+    private string GetUserId()
+    {
+        if (PlayerPrefs.HasKey("USER_ID"))
+            return PlayerPrefs.GetString("USER_ID");
+
+        string id = System.Guid.NewGuid().ToString();
+        PlayerPrefs.SetString("USER_ID", id);
+        PlayerPrefs.Save();
+
+        return id;
+    }
+
     public void SaveScore(int score)
     {
         if (db == null)
@@ -44,8 +56,13 @@ public class LeaderboardManager : MonoBehaviour
             return;
         }
 
-        string userId = SystemInfo.deviceUniqueIdentifier;
-        string name = "luka"; // 🔥 keep stable for now
+        string userId = GetUserId();
+        string name = PlayerProfile.GetName();
+
+        if (string.IsNullOrEmpty(name))
+        {
+            name = "Player" + Random.Range(100, 9999); // temp name
+        }
 
         db.Child("leaderboard").Child(userId).GetValueAsync()
         .ContinueWithOnMainThread(task =>
@@ -79,6 +96,35 @@ public class LeaderboardManager : MonoBehaviour
             {
                 WriteScore(userId, name, score);
             }
+        });
+    }
+
+    public void UpdateUsername(string newName)
+    {
+        if (db == null)
+        {
+            Debug.LogWarning("DB not ready");
+            return;
+        }
+
+        string userId = GetUserId();
+
+        db.Child("leaderboard").Child(userId).GetValueAsync()
+        .ContinueWithOnMainThread(task =>
+        {
+            if (task.Result.Exists)
+            {
+                // update only name
+                db.Child("leaderboard").Child(userId).Child("name")
+                .SetValueAsync(newName);
+            }
+            else
+            {
+                // 🔥 create entry if missing
+                WriteScore(userId, newName, 0);
+            }
+
+            OnScoreSaved?.Invoke();
         });
     }
 

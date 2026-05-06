@@ -29,7 +29,6 @@ public class RewardedAdManager : MonoBehaviour
 
     void Start()
     {
-        LoadAd();
     }
 
     public void LoadAd()
@@ -76,12 +75,6 @@ public class RewardedAdManager : MonoBehaviour
                 Debug.Log("🎁 AdMob reward");
                 onResult?.Invoke(true);
             });
-
-            rewardedAd.OnAdFullScreenContentClosed += () =>
-            {
-                Debug.Log("AdMob closed");
-                LoadAd();
-            };
         }
         else
         {

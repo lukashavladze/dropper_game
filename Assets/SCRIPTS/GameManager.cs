@@ -447,28 +447,31 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("🧹 FULL RESET TRIGGERED");
 
-        // reset gameplay
         level = 1;
         score = 0;
         placedSinceLevel = 0;
 
-
         // clear local saves
         PlayerPrefs.DeleteKey("PLAYER_LEVEL");
         PlayerPrefs.DeleteKey("BEST_SCORE");
+        PlayerPrefs.DeleteKey("PLAYER_NAME"); // ✅ ADD THIS
+        PlayerPrefs.DeleteKey("USER_ID");     // ✅ ADD THIS
         PlayerPrefs.Save();
 
-        // reset combo
         ResetCombo();
 
-        // update UI
         uiManager.UpdateLevel(level);
         uiManager.UpdateScore(score);
 
-        // 🔥 CLEAR LEADERBOARD (Firebase)
         if (LeaderboardManager.Instance != null)
         {
             LeaderboardManager.Instance.ClearLeaderboardForTesting();
+        }
+
+        var leaderboard = FindFirstObjectByType<LeaderboardUI>();
+        if (leaderboard != null)
+        {
+            leaderboard.Show(); // 🔥 forces username check again
         }
 
         Debug.Log("✅ Everything reset");

@@ -5,6 +5,7 @@ public class LeaderboardUI : MonoBehaviour
 {
     public Transform content;
     public GameObject itemPrefab;
+    public GameObject usernamePanel;
 
     void OnEnable()
     {
@@ -21,7 +22,15 @@ public class LeaderboardUI : MonoBehaviour
     public void Show()
     {
         gameObject.SetActive(true);
-        Load();
+
+        if (!PlayerProfile.HasName())
+        {
+            usernamePanel.SetActive(true);
+        }
+        else
+        {
+            Load();
+        }
     }
 
     void Refresh()
@@ -53,6 +62,11 @@ public class LeaderboardUI : MonoBehaviour
 
             rank++;
         }
+    }
+
+    public void RefreshManually()
+    {
+        Load();
     }
 
     public void Close()

@@ -10,10 +10,8 @@ public class LoadingScreen : MonoBehaviour
 
     void Start()
     {
-        // Always load Menu at game start
         SceneToLoad.nextScene = "menu";
-        
-        StartCoroutine(LoadAsync());
+        StartCoroutine(WaitForAgeThenLoad());
     }
 
     IEnumerator LoadAsync()
@@ -43,5 +41,31 @@ public class LoadingScreen : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    IEnumerator WaitForAgeThenLoad()
+    {
+        // Wait until AgeGateManager exists
+        while (AgeGateManager.Instance == null)
+            yield return null;
+
+        // 🚨 FIRST TIME → WAIT FOR USER INPUT
+        if (!AgeGateManager.Instance.IsAgeSelected)
+        {
+            Debug.Log("⏳ Waiting for age selection...");
+
+            while (!AgeGateManager.Instance.IsAgeSelected)
+                yield return null;
+        }
+
+        // 🚨 WAIT FOR CONSENT FLOW TO FINISH
+        while (ConsentManager.Instance == null || !ConsentManager.Instance.IsConsentDone)
+        {
+            yield return null;
+        }
+
+        Debug.Log("✅ Age + Consent done → loading game");
+
+        StartCoroutine(LoadAsync());
     }
 }

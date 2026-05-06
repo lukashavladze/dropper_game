@@ -5,6 +5,8 @@ public class AdMobManager : MonoBehaviour
 {
     public static AdMobManager Instance;
 
+    public bool IsInitialized { get; private set; } = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -18,11 +20,21 @@ public class AdMobManager : MonoBehaviour
         }
     }
 
-    void Start()
+    // 🔥 CALLED AFTER CONSENT
+    public void InitializeAds(RequestConfiguration config)
     {
+        if (IsInitialized)
+            return;
+
+        MobileAds.SetRequestConfiguration(config);
+
         MobileAds.Initialize(initStatus =>
         {
-            Debug.Log("✅ AdMob Initialized");
+            Debug.Log("✅ AdMob Initialized (AFTER CONSENT)");
+            IsInitialized = true;
+
+            // Load first ad
+            RewardedAdManager.Instance?.LoadAd();
         });
     }
 }
