@@ -16,6 +16,6 @@ public class SettingsUI : MonoBehaviour
 
     public void OpenPrivacyPolicy()
     {
-        Application.OpenURL("https://github.com/lukashavladze/dropper_game/blob/ads-added-without-testing/privacy-policy.md");
+        Application.OpenURL("https://lukashavladze.github.io/STAR-BLOXX/");
     }
 }

@@ -417,7 +417,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &356303861
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28026,10 +28026,16 @@ MonoBehaviour:
   score: 0
   level: 1
   isGameOver: 0
-  dropSound: {fileID: 8300000, guid: 7a0b59e2843cad74193c35baf570c608, type: 3}
-  perfectSound: {fileID: 8300000, guid: e68148983e195cb4f974f19fe1cf132f, type: 3}
-  placedSound: {fileID: 8300000, guid: a0ed007ca4c81af498e01e96eab4eb51, type: 3}
-  missSound: {fileID: 8300000, guid: 6fa747e737d90a642adccda6a17ce1b9, type: 3}
+  comboSounds:
+  - {fileID: 8300000, guid: 7868501404f20414d9e4c6fcd6fe86b6, type: 3}
+  - {fileID: 8300000, guid: 8aebb6632e7dfa34f9c6715666f6d3e7, type: 3}
+  - {fileID: 8300000, guid: c850ef14e3e441345846ec9d38a69472, type: 3}
+  - {fileID: 8300000, guid: 1c4290aac6a0d794ea5f4204809efb66, type: 3}
+  - {fileID: 8300000, guid: 157c85751cb7a8c45b3bf4ecf91a2b4c, type: 3}
+  - {fileID: 8300000, guid: 4316199ba01c623489979e934b12e7aa, type: 3}
+  dropSound: {fileID: 8300000, guid: 865ce1e224355b54c8b06fc81cb41a64, type: 3}
+  placedSound: {fileID: 8300000, guid: 287b1e47f9cb760498beff6af3164217, type: 3}
+  missSound: {fileID: 8300000, guid: 75ef06de11ff8394dba213f731d61a69, type: 3}
   scorePopupPrefab: {fileID: 3778475805436554870, guid: ca1817b5de56c17409530c8266c17f00, type: 3}
   perfectFlashPrefab: {fileID: 7242003777993092318, guid: 49b607aa70d101747959d754c0b0f59c, type: 3}
 --- !u!4 &1626557067

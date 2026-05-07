@@ -20,9 +20,12 @@ public class GameManager : MonoBehaviour
     private int placedSinceLevel = 0;
     public bool isGameOver = false;
 
+    [Header("Combo Sounds")]
+    public AudioClip[] comboSounds;
+
+
     [Header("Audio")]
     public AudioClip dropSound;
-    public AudioClip perfectSound;
     public AudioClip placedSound;
     public AudioClip missSound;
     private AudioSource audioSource;
@@ -130,6 +133,20 @@ public class GameManager : MonoBehaviour
         PlaySound(dropSound);
     }
 
+    void PlayComboSound()
+    {
+        if (comboSounds == null || comboSounds.Length == 0)
+            return;
+
+        // comboCount starts at 1
+        int index = Mathf.Clamp(comboCount - 1, 0, comboSounds.Length - 1);
+
+        AudioClip clip = comboSounds[index];
+
+        if (clip != null)
+            audioSource.PlayOneShot(clip);
+    }
+
     public void OnMiss(GameObject stone)
     {
         if (isGameOver) return;
@@ -208,7 +225,7 @@ public class GameManager : MonoBehaviour
 
     public void OnPerfectPlacement(int placedCount, GameObject stone)
     {
-        PlaySound(perfectSound);
+        PlayComboSound();
 
         normalStreak = 0;
         // 🔥 COMBO INCREASE
