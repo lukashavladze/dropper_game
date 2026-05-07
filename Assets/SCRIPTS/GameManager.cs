@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     public AudioClip dropSound;
     public AudioClip placedSound;
     public AudioClip missSound;
+    public AudioClip normalSound;
     private AudioSource audioSource;
 
     private const string SaveKey_Level = "PLAYER_LEVEL";
@@ -210,7 +211,15 @@ public class GameManager : MonoBehaviour
 
         AddScore(finalScore);
         SpawnScorePopup(stone.transform.position, finalScore); 
-        PlaySound(placedSound);
+        if (placedCount > 1)
+        {
+            PlaySound(placedSound);
+        }
+        else if (placedCount == 1)
+        {
+            PlaySound(normalSound);
+        }
+        
 
         MoveDropperUp(stone);
 
@@ -321,11 +330,13 @@ public class GameManager : MonoBehaviour
     public void OnNormalPlacement(int placedCount, GameObject stone)
     {
         normalStreak++;
+        bool comboBreak = normalStreak >= 2;
 
         // ❗ reset combo if 2 normals in a row
-        if (normalStreak >= 2)
+        if (comboBreak)
         {
             ResetCombo();
+            PlaySound(placedSound);
             normalStreak = 0;
         }
 
@@ -337,8 +348,10 @@ public class GameManager : MonoBehaviour
         AddScore(finalScore);
 
         SpawnScorePopup(stone.transform.position, finalScore);
-
-        PlaySound(placedSound);
+        if (!comboBreak)
+        {
+            PlaySound(normalSound);
+        }
 
         MoveDropperUp(stone);
 
