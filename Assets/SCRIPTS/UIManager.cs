@@ -13,7 +13,8 @@ public class UIManager : MonoBehaviour
     public Text levelText;
     public Button restartButton;
     public GameObject gameOverPanel;
-    public Text perfectText;
+    public TextMeshProUGUI perfectText;
+    private Coroutine perfectRoutine;
 
     public static UIManager Instance;
 
@@ -41,12 +42,6 @@ public class UIManager : MonoBehaviour
     private Coroutine progressRoutine;
 
 
-    public string[] planets = {
-    "Mercury", "Venus", "Earth", "Mars", "Jupiter",
-    "Saturn", "Uranus", "Neptune", "Pluto"
-};
-
-
     [Header("Combo UI")]
     public TextMeshProUGUI comboText;
     public CanvasGroup comboCanvas;
@@ -64,22 +59,6 @@ public class UIManager : MonoBehaviour
         Instance = this;
         if (perfectText != null)
             perfectText.gameObject.SetActive(false);
-    }
-
-    public void ShowLevelUp(int level)
-    {
-        string planetName = planets[level - 2];
-        planetText_arrive.text = planetName;
-        if (planetIcons != null && planetIcons.Length > level)
-            planetImage_arrive.sprite = planetIcons[level];
-        LevelUpPanel.SetActive(true);
-        CancelInvoke(nameof(HideLevelUp));
-        Invoke(nameof(HideLevelUp), 2.2f);
-    }
-
-    void HideLevelUp()
-    {
-        LevelUpPanel.SetActive(false);
     }
 
     public void UpdateCombo(int combo, int multiplier)
@@ -133,18 +112,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ComboPop()
-    {
-        comboText.transform.localScale = Vector3.one * 1.4f;
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.unscaledDeltaTime * 8f;
-            comboText.transform.localScale = Vector3.Lerp(Vector3.one * 1.4f, Vector3.one, t);
-            yield return null;
-        }
-    }
 
     public void UpdateProgress(float target)
     {
@@ -200,32 +167,49 @@ public class UIManager : MonoBehaviour
     public void ShowPerfectText()
     {
         if (perfectText == null) return;
-        StartCoroutine(ShowPerfectRoutine());
+
+        if (perfectRoutine != null)
+            StopCoroutine(perfectRoutine);
+
+        perfectRoutine = StartCoroutine(ShowPerfectRoutine());
     }
 
     private IEnumerator ShowPerfectRoutine()
     {
         perfectText.gameObject.SetActive(true);
+
+        CanvasGroup cg = perfectText.GetComponent<CanvasGroup>();
+
+        if (cg == null)
+            cg = perfectText.gameObject.AddComponent<CanvasGroup>();
+
+        // RESET VISIBILITY
+        cg.alpha = 1f;
+
+        // RESET SCALE
         perfectText.transform.localScale = Vector3.one * 1.2f;
 
-        float duration = 1f;
+        float duration = 0.8f;
         float elapsed = 0f;
-
-        // Fade + scale down smoothly
-        CanvasGroup cg = perfectText.GetComponent<CanvasGroup>();
-        if (cg == null) cg = perfectText.gameObject.AddComponent<CanvasGroup>();
-        cg.alpha = 1f;
 
         while (elapsed < duration)
         {
-            elapsed += Time.unscaledDeltaTime; // unaffected by pause
-            cg.alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
-            perfectText.transform.localScale = Vector3.Lerp(Vector3.one * 1.2f, Vector3.one, elapsed / duration);
+            elapsed += Time.unscaledDeltaTime;
+
+            float t = elapsed / duration;
+
+            cg.alpha = Mathf.Lerp(1f, 0f, t);
+
+            perfectText.transform.localScale =
+                Vector3.Lerp(Vector3.one * 1.2f, Vector3.one, t);
+
             yield return null;
         }
 
         cg.alpha = 0f;
         perfectText.gameObject.SetActive(false);
+
+        perfectRoutine = null;
     }
 
 

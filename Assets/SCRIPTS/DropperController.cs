@@ -10,6 +10,7 @@ public class DropperController : MonoBehaviour
     public float leftX = -5f, rightX = 5f;
     public float baseSpeed = 2f;
     public float speedIncreasePerLevel = 0.3f;
+    public float maxSpeed = 9f;
 
     public float CurrentSpeed => moveSpeed;
 
@@ -32,7 +33,7 @@ public class DropperController : MonoBehaviour
 
     void Start()
     {
-        moveSpeed = baseSpeed;
+        moveSpeed = Mathf.Min(baseSpeed, maxSpeed);
 
         if (SkinSelection.SelectedStoneSkin != null)
             SetStoneSkin(SkinSelection.SelectedStoneSkin);
@@ -67,6 +68,8 @@ public class DropperController : MonoBehaviour
     public void IncreaseSpeedSmall()
     {
         baseSpeed += 0.15f;
+        // 🔥 Clamp speed so it never exceeds maxSpeed
+        baseSpeed = Mathf.Min(baseSpeed, maxSpeed);
         moveSpeed = baseSpeed;
         Debug.Log($"🚀 SPEED INCREASE → baseSpeed={baseSpeed}, moveSpeed={moveSpeed}");
     }
