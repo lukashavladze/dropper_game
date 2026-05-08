@@ -27,11 +27,6 @@ public class UIManager : MonoBehaviour
     public Text scoreCountText;
     public Text bestScoreCountText;
 
-    public Text planetText_arrive;
-
-    public Image planetImage_arrive;
-    public Sprite[] planetIcons;   // same order as planets[]
-
     private Coroutine pulseRoutine;
 
     [Header("Level Progress")]
@@ -272,8 +267,6 @@ public class UIManager : MonoBehaviour
             bestText.text = "Best: 0";
             return;
         }
-
-        //bestText.text = "Best: " + LeaderboardManager.Instance.GetBest();
     }
 
 

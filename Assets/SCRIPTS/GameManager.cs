@@ -37,7 +37,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject perfectFlashPrefab;
 
     private int blocksSinceSpeedIncrease = 0;
-    private int flashCount = 0;
     
 
     // 🔥 COMBO SYSTEM
@@ -484,8 +483,8 @@ public class GameManager : MonoBehaviour
         // clear local saves
         PlayerPrefs.DeleteKey("PLAYER_LEVEL");
         PlayerPrefs.DeleteKey("BEST_SCORE");
-        PlayerPrefs.DeleteKey("PLAYER_NAME"); // ✅ ADD THIS
-        PlayerPrefs.DeleteKey("USER_ID");     // ✅ ADD THIS
+        PlayerPrefs.DeleteKey("PLAYER_NAME"); 
+        PlayerPrefs.DeleteKey("USER_ID");    
         PlayerPrefs.Save();
 
         ResetCombo();
