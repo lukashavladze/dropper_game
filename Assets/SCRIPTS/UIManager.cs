@@ -237,7 +237,7 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        scoreText.text = "Score: " + score;
+        scoreText.text = score.ToString();
 
         //if (score > LeaderboardManager.Instance.GetBest())
         //{
