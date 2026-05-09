@@ -21774,7 +21774,7 @@ MonoBehaviour:
   - {fileID: -2615874204119335, guid: c610d98a269e46b4c86d7d0a664cf8f1, type: 3}
   - {fileID: -8425141836431729757, guid: cbc1bd3b6d07ffd489b64968144dd155, type: 3}
   - {fileID: -2093324750932669864, guid: 88f3e785fb83c7241ad3e364ab83b6d3, type: 3}
-  - {fileID: 1136266502064347141, guid: eecd894cbe407724e8907a9d44e5b8cf, type: 3}
+  - {fileID: -7723183306789948249, guid: 31aae74f607bf9e41a1340494ef3d15f, type: 3}
 --- !u!212 &975458165
 SpriteRenderer:
   serializedVersion: 2
@@ -21905,14 +21905,6 @@ MonoBehaviour:
   planetText: {fileID: 0}
   scoreCountText: {fileID: 1405413422}
   bestScoreCountText: {fileID: 643530153}
-  planetText_arrive: {fileID: 0}
-  planetImage_arrive: {fileID: 0}
-  planetIcons:
-  - {fileID: -8352137423761046907, guid: 25a9bee783afbaf42b012a87300201a0, type: 3}
-  - {fileID: 21300000, guid: cb73b4a2433acba4c952e957c9f005d1, type: 3}
-  - {fileID: 21300000, guid: c779c2dbd550213409bae399b3ad049e, type: 3}
-  - {fileID: 21300000, guid: 6689bd5988d57e24fb0e214546dd359c, type: 3}
-  - {fileID: 21300000, guid: 38b18f2ecab5a5c44a940827f023a49a, type: 3}
   progressFill: {fileID: 0}
   progressText: {fileID: 0}
   comboText: {fileID: 1995095088}
