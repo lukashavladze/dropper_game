@@ -32,7 +32,6 @@ public class AdInitializer : MonoBehaviour
         // 👶 CHILD (UNDER 13)
         if (isChild)
         {
-            Debug.Log("👶 CHILD MODE (COPPA)");
 
             config = new RequestConfiguration
             {
@@ -44,8 +43,6 @@ public class AdInitializer : MonoBehaviour
         // 🧑 ADULT + PERSONALIZED
         else if (personalized)
         {
-            Debug.Log("📢 PERSONALIZED ADS");
-
             config = new RequestConfiguration
             {
                 TagForChildDirectedTreatment = TagForChildDirectedTreatment.False,
@@ -56,8 +53,6 @@ public class AdInitializer : MonoBehaviour
         // 🛡 ADULT + NON-PERSONALIZED
         else
         {
-            Debug.Log("🛡 NON-PERSONALIZED ADS");
-
             config = new RequestConfiguration
             {
                 TagForChildDirectedTreatment = TagForChildDirectedTreatment.False, // ❗ important

@@ -106,14 +106,12 @@ public class StackManager : MonoBehaviour
     {
         float old = perfectThreshold;
         perfectThreshold = Mathf.Max(0.05f, perfectThreshold - 0.005f);
-        Debug.Log($"🎯 PERFECT THRESHOLD SHRINK → {old:F3} → {perfectThreshold:F3}");
     }
 
     public void ImprovePrecision()
     {
         float old = perfectThreshold;
         perfectThreshold = Mathf.Min(0.15f, perfectThreshold + 0.01f); // cap max
-        Debug.Log($"🎯 PERFECT THRESHOLD GROW → {old:F3} → {perfectThreshold:F3}");
     }
 
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
@@ -201,7 +199,6 @@ public class StackManager : MonoBehaviour
         // width logic
         if (isPerfect)
         {
-            Debug.Log($"🌟 PERFECT HIT → dx={absDx:F3}, threshold={perfectThreshold:F3}, combo={GameManager.Instance?.GetCombo()}");
             float newWidth = NextStoneWidth;
 
             if (GameManager.Instance != null && GameManager.Instance.GetCombo() >= 5)
@@ -218,7 +215,6 @@ public class StackManager : MonoBehaviour
         }
         else if (isNormal)
         {
-            Debug.Log($"🟡 NORMAL HIT → dx={absDx:F3}, perfect<{perfectThreshold:F3}, normal<{normalThreshold:F3}");
             // 🔥 NO WIDTH CHANGE
             ApplyWidthToStone(stone, NextStoneWidth);
             ApplyWidthToStone(top, NextStoneWidth);
@@ -227,7 +223,6 @@ public class StackManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"❌ BAD HIT → dx={absDx:F3}, > normalThreshold={normalThreshold:F3}");
             float newWidth = Mathf.Clamp(NextStoneWidth - fixedShrink, minStoneWidth, originalStoneWidth);
             ApplyWidthToStone(stone, newWidth);
             ApplyWidthToStone(top, newWidth);
@@ -252,7 +247,6 @@ public class StackManager : MonoBehaviour
         {
             if (stone.transform.position.y < referenceY - 1f)
             {
-                Debug.Log("❌ Stone fell below stack — instant game over");
                 GameManager.Instance?.OnMiss(stone);
                 yield break;
             }

@@ -16,17 +16,11 @@ public class FirebaseInit : MonoBehaviour
 
         if (status == DependencyStatus.Available)
         {
-            Debug.Log("🔥 Firebase READY");
-
             DB = FirebaseDatabase.GetInstance(
                 "https://starbloxx-c4908-default-rtdb.europe-west1.firebasedatabase.app/"
             );
 
             IsReady = true;
-        }
-        else
-        {
-            Debug.LogError("❌ Firebase failed: " + status);
         }
     }
 }

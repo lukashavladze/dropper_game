@@ -88,9 +88,6 @@ public class GameManager : MonoBehaviour
         
     }
 
-    // =========================
-    // 🔥 COMBO LOGIC
-    // =========================
 
     void ResetCombo()
     {
@@ -227,27 +224,24 @@ public class GameManager : MonoBehaviour
         HandleLevelProgression();
     }
 
-    // =========================
-    // PERFECT PLACEMENT
-    // =========================
 
     public void OnPerfectPlacement(int placedCount, GameObject stone)
     {
         PlayComboSound();
 
         normalStreak = 0;
-        // 🔥 COMBO INCREASE
+        // COMBO INCREASE
         if (comboCount <= 9)
             comboCount++;
 
-        // 🔥 BLOOM FX
+        //  BLOOM FX
         BloomController.Instance?.SetTarget(10f, 0.7f);
         BloomController.Instance?.Pulse(40f, 0.8f);
 
         if (comboCount >= 10)
-            BloomController.Instance?.SetTarget(15f, 0.7f);
+            BloomController.Instance?.SetTarget(10f, 0.7f);
         else
-            BloomController.Instance?.SetTarget(7f, 0.5f);
+            BloomController.Instance?.SetTarget(6f, 0.5f);
 
         int multiplier = GetComboMultiplier();
         int baseScore = placedCount;
@@ -263,7 +257,7 @@ public class GameManager : MonoBehaviour
         MoveDropperUp(stone);
 
         // =========================
-        // 🔥 PERFECT IMPACT FX (COLOR MATCHED)
+        // PERFECT IMPACT FX (COLOR MATCHED)
         // =========================
         if (perfectFlashPrefab != null)
         {
@@ -283,7 +277,7 @@ public class GameManager : MonoBehaviour
                 GameObject fx = Instantiate(perfectFlashPrefab, pos, Quaternion.identity);
 
                 Color color = GetColorFromSprite(sr.sprite);
-                color *= 3f;   // try 2–5 depending on look
+                color *= 3f;  
                 color.a = 1f;
 
                 var systems = fx.GetComponentsInChildren<ParticleSystem>();
@@ -299,8 +293,6 @@ public class GameManager : MonoBehaviour
         // 🔥 GAMEPLAY BONUS
         if (comboCount >= 5)
             StackManager.Instance.ImprovePrecision();
-
-        Debug.Log($"🌟 PERFECT x{multiplier} (combo {comboCount})");
 
         HandleBlockPlaced();
         HandleLevelProgression();
@@ -379,7 +371,6 @@ public class GameManager : MonoBehaviour
 
             PlayerPrefs.Save();
 
-            Debug.Log($"Level UP → {level}");
 
             // 🔥 reset progress AFTER level up
             uiManager.UpdateProgress(0f);

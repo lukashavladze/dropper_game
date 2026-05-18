@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class LeaderboardUI : MonoBehaviour
 {
@@ -40,21 +41,29 @@ public class LeaderboardUI : MonoBehaviour
 
     void Load()
     {
+        StartCoroutine(LoadRoutine());
+    }
+
+    IEnumerator LoadRoutine()
+    {
         // clear old entries
         foreach (Transform child in content)
+        {
             Destroy(child.gameObject);
+        }
+
+        // wait one frame so objects actually disappear
+        yield return null;
 
         LeaderboardManager.Instance.LoadTopScores(OnLoaded);
     }
 
     void OnLoaded(List<LeaderboardManager.LeaderEntry> list)
     {
-        Debug.Log("📊 Entries received: " + list.Count);
         int rank = 1;
 
         foreach (var entry in list)
         {
-            Debug.Log($"➡️ Spawning: {entry.name} - {entry.score}");
             GameObject obj = Instantiate(itemPrefab, content);
 
             var item = obj.GetComponent<LeaderboardItemUI>();

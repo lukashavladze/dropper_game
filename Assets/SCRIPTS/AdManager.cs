@@ -24,7 +24,6 @@ public class AdManager : MonoBehaviour
         if (RewardedAdManager.Instance != null &&
             RewardedAdManager.Instance.IsReady())
         {
-            Debug.Log("➡️ Showing AdMob");
 
             RewardedAdManager.Instance.Show(success =>
             {
@@ -47,7 +46,6 @@ public class AdManager : MonoBehaviour
 
     void TryUnityAds(Action<bool> onResult)
     {
-        Debug.Log("➡️ Falling back to Unity Ads");
 
         if (UnityAdsManager.Instance != null)
         {
@@ -55,7 +53,6 @@ public class AdManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("❌ No ads available");
             onResult?.Invoke(false);
         }
     }

@@ -42,16 +42,12 @@ public class AgeGateManager : MonoBehaviour
 
     public void SelectChild()
     {
-        Debug.Log("👶 User is UNDER 13");
-
         IsChild = true;
         SaveAndContinue();
     }
 
     public void SelectAdult()
     {
-        Debug.Log("🧑 User is 13+");
-
         IsChild = false;
         SaveAndContinue();
     }

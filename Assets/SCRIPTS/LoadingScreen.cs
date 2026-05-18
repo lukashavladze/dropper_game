@@ -52,8 +52,6 @@ public class LoadingScreen : MonoBehaviour
         // 🚨 FIRST TIME → WAIT FOR USER INPUT
         if (!AgeGateManager.Instance.IsAgeSelected)
         {
-            Debug.Log("⏳ Waiting for age selection...");
-
             while (!AgeGateManager.Instance.IsAgeSelected)
                 yield return null;
         }
@@ -64,7 +62,6 @@ public class LoadingScreen : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("✅ Age + Consent done → loading game");
 
         StartCoroutine(LoadAsync());
     }

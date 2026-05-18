@@ -38,13 +38,11 @@ public class CameraShake : MonoBehaviour
 
     public void Shake(float duration, float magnitude)
     {
-        Debug.Log("shake triggered");
         if (follow == null)
         {
             follow = FindFirstObjectByType<CameraFollow>();
             if (follow == null)
             {
-                Debug.LogWarning("⚠️ No CameraFollow found → no shake");
                 return;
             }
         }
