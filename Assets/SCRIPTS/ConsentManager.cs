@@ -24,13 +24,15 @@ public class ConsentManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        RequestConsent();
-    }
+    //void Start()
+    //{
+    //    RequestConsent();
+    //}
 
     public void RequestConsent()
     {
+        if (IsConsentDone)
+            return;
 
         if (_isRequesting) return;
         _isRequesting = true;

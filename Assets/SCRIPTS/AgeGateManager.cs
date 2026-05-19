@@ -59,7 +59,7 @@ public class AgeGateManager : MonoBehaviour
 
         IsAgeSelected = true;
 
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
         if (agePanel != null)
             agePanel.SetActive(false); // 🔥 HIDE UI
 
@@ -68,6 +68,13 @@ public class AgeGateManager : MonoBehaviour
 
     void StartConsentFlow()
     {
-        ConsentManager.Instance.RequestConsent();
+        if (ConsentManager.Instance != null)
+        {
+            ConsentManager.Instance.RequestConsent();
+        }
+        else
+        {
+            Debug.LogError("ConsentManager missing!");
+        }
     }
 }
