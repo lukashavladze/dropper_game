@@ -17,21 +17,10 @@ public class UIManager : MonoBehaviour
     private Coroutine perfectRoutine;
 
     public static UIManager Instance;
-
-    public GameObject LevelUpPanel;
-    //public Text LevelUpText;
-
-
-    public TextMeshProUGUI planetText;
-
     public Text scoreCountText;
     public Text bestScoreCountText;
 
     private Coroutine pulseRoutine;
-
-    [Header("Level Progress")]
-    public Image progressFill;
-    public TextMeshProUGUI progressText;
 
     private float currentProgress = 0f;
     private Coroutine progressRoutine;
@@ -110,7 +99,6 @@ public class UIManager : MonoBehaviour
 
     public void UpdateProgress(float target)
     {
-        if (progressFill == null) return;
 
         // clamp safety
         target = Mathf.Clamp01(target);
@@ -141,20 +129,11 @@ public class UIManager : MonoBehaviour
             t = t * t * (3f - 2f * t); // SmoothStep
 
             currentProgress = Mathf.Lerp(start, target, t);
-            progressFill.fillAmount = currentProgress;
-
-            // optional text update
-            if (progressText != null && GameManager.Instance != null)
-            {
-                progressText.text = $"{GameManager.Instance.GetBlocksPlaced()}/{GameManager.Instance.GetBlocksRequired()}";
-            }
 
             yield return null;
         }
 
         currentProgress = target;
-        progressFill.fillAmount = currentProgress;
-
         progressRoutine = null;
     }
 
@@ -212,7 +191,6 @@ public class UIManager : MonoBehaviour
     {
         if (scoreText == null)
         {
-            Debug.LogError("⚠️ UIManager: ScoreText is NOT assigned in the Inspector!");
             return;
         }
 
@@ -257,13 +235,11 @@ public class UIManager : MonoBehaviour
     {
         if (bestText == null)
         {
-            Debug.LogWarning("UIManager: bestText is not assigned in the Inspector.");
             return;
         }
 
         if (LeaderboardManager.Instance == null)
         {
-            Debug.LogWarning("UIManager: LeaderboardManager.Instance is null – best score will show as 0.");
             bestText.text = "Best: 0";
             return;
         }

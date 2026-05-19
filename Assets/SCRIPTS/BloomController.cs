@@ -18,15 +18,6 @@ public class BloomController : MonoBehaviour
 
         // get Global Volume on this object
         var volume = GetComponent<Volume>();
-
-        if (volume.profile.TryGet(out bloom))
-        {
-            Debug.Log("✅ Bloom found");
-        }
-        else
-        {
-            Debug.LogError("❌ Bloom NOT found in Volume Profile");
-        }
     }
     void OnEnable()
     {
@@ -53,7 +44,6 @@ public class BloomController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("⚠️ No Bloom in this scene");
             bloom = null;
         }
     }

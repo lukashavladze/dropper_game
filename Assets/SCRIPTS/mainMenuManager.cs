@@ -13,7 +13,6 @@ public class MainMenuManager : MonoBehaviour
 
     public void ExitGame()
     {
-        Debug.Log("Exit game pressed");
         Application.Quit();
 
         // In Editor, Application.Quit() does nothing, so this is just for testing:

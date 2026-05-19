@@ -41,8 +41,6 @@ public class UnityAdsManager : MonoBehaviour,
 
     public void OnInitializationComplete()
     {
-        Debug.Log("Ads Initialized");
-        Debug.Log("Using Placement: " + rewardedAdUnitId);
         LoadAd();
     }
 
@@ -67,7 +65,6 @@ public class UnityAdsManager : MonoBehaviour,
         }
         else
         {
-            Debug.Log("Ads not ready");
             _onAdResult?.Invoke(false);
         }
     }
@@ -88,7 +85,6 @@ public class UnityAdsManager : MonoBehaviour,
 
     public void OnUnityAdsShowFailure(string placementId, UnityAdsShowError error, string message)
     {
-        Debug.Log($"Failed to show ad: {message}");
         _onAdResult?.Invoke(false);
     }
 

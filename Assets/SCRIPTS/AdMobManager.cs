@@ -30,7 +30,6 @@ public class AdMobManager : MonoBehaviour
 
         MobileAds.Initialize(initStatus =>
         {
-            Debug.Log("✅ AdMob Initialized (AFTER CONSENT)");
             IsInitialized = true;
 
             // Load first ad

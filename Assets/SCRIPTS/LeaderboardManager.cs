@@ -32,8 +32,6 @@ public class LeaderboardManager : MonoBehaviour
             yield return null;
 
         db = FirebaseInit.DB.RootReference;
-
-        Debug.Log("🏆 Leaderboard ready");
     }
 
     private string GetUserId()
@@ -52,7 +50,6 @@ public class LeaderboardManager : MonoBehaviour
     {
         if (db == null)
         {
-            Debug.LogWarning("Database not ready yet!");
             return;
         }
 
@@ -69,13 +66,11 @@ public class LeaderboardManager : MonoBehaviour
         {
             if (task.IsFaulted)
             {
-                Debug.LogError("❌ Read failed: " + task.Exception);
                 return;
             }
 
             if (!task.IsCompleted)
             {
-                Debug.LogWarning("⚠️ Read not completed");
                 return;
             }
 
@@ -87,10 +82,7 @@ public class LeaderboardManager : MonoBehaviour
                 {
                     WriteScore(userId, name, score);
                 }
-                else
-                {
-                    Debug.Log("Score not higher, not updating");
-                }
+
             }
             else
             {
@@ -103,7 +95,6 @@ public class LeaderboardManager : MonoBehaviour
     {
         if (db == null)
         {
-            Debug.LogWarning("DB not ready");
             return;
         }
 
@@ -132,7 +123,6 @@ public class LeaderboardManager : MonoBehaviour
     {
         if (db == null)
         {
-            Debug.LogWarning("DB not ready");
             return;
         }
 
@@ -140,14 +130,8 @@ public class LeaderboardManager : MonoBehaviour
         {
             if (task.IsCompleted)
             {
-                Debug.Log("🔥 Leaderboard CLEARED");
-
                 // refresh UI if open
                 OnScoreSaved?.Invoke();
-            }
-            else
-            {
-                Debug.LogError("Failed to clear leaderboard");
             }
         });
     }
@@ -156,7 +140,6 @@ public class LeaderboardManager : MonoBehaviour
     {
         if (db == null)
         {
-            Debug.LogError("❌ DB is NULL when loading scores!");
             return;
         }
 
@@ -168,31 +151,25 @@ public class LeaderboardManager : MonoBehaviour
           {
               if (task.IsFaulted)
               {
-                  Debug.LogError("❌ Load failed: " + task.Exception);
                   return;
               }
 
               if (!task.IsCompleted)
               {
-                  Debug.LogWarning("⚠️ Load not completed");
                   return;
               }
 
               if (task.Result == null || !task.Result.Exists)
               {
-                  Debug.LogWarning("⚠️ No leaderboard data found");
                   callback?.Invoke(new List<LeaderEntry>());
                   return;
               }
 
-              Debug.Log("✅ Firebase data received!");
 
               var list = new List<LeaderEntry>();
 
               foreach (var child in task.Result.Children)
               {
-                  Debug.Log("👉 Raw entry: " + child.GetRawJsonValue());
-
                   string name = child.Child("name").Value?.ToString() ?? "Unknown";
                   int score = int.Parse(child.Child("score").Value.ToString());
 
@@ -213,14 +190,9 @@ public class LeaderboardManager : MonoBehaviour
         {
             if (task.IsCompleted)
             {
-                Debug.Log("🔥 Score saved: " + score);
 
                 // 🔥 Notify UI AFTER save completes
                 OnScoreSaved?.Invoke();
-            }
-            else
-            {
-                Debug.LogError("Failed to save score");
             }
         });
     }

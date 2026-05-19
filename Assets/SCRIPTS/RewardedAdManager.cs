@@ -39,7 +39,7 @@ public class RewardedAdManager : MonoBehaviour
         {
             if (error != null || ad == null)
             {
-                Debug.Log("❌ AdMob load failed");
+
                 return;
             }
 
@@ -47,17 +47,16 @@ public class RewardedAdManager : MonoBehaviour
 
             rewardedAd.OnAdFullScreenContentClosed += () =>
             {
-                Debug.Log("AdMob closed");
+
                 LoadAd();
             };
 
             rewardedAd.OnAdFullScreenContentFailed += (err) =>
             {
-                Debug.Log("AdMob failed");
+
                 LoadAd();
             };
 
-            Debug.Log("✅ AdMob loaded");
         });
     }
 
@@ -72,7 +71,6 @@ public class RewardedAdManager : MonoBehaviour
         {
             rewardedAd.Show((Reward reward) =>
             {
-                Debug.Log("🎁 AdMob reward");
                 onResult?.Invoke(true);
             });
         }

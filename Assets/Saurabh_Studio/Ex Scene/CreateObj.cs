@@ -48,7 +48,6 @@ public class CreateObj : MonoBehaviour
         // Save prefab with new API
         PrefabUtility.SaveAsPrefabAssetAndConnect(obj, localPath, InteractionMode.UserAction);
 
-        Debug.Log($"Prefab created at: {localPath}");
     }
 #endif
 }
