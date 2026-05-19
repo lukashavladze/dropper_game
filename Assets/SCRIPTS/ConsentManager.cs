@@ -26,7 +26,7 @@ public class ConsentManager : MonoBehaviour
 
     void Start()
     {
-       // RequestConsent();
+        RequestConsent();
     }
 
     public void RequestConsent()
@@ -36,16 +36,7 @@ public class ConsentManager : MonoBehaviour
         _isRequesting = true;
 
 
-        // 🔥 OPTIONAL: DEBUG SETTINGS (remove in production)   ------------------------------------------------ REMOVE BEFORE PUBLISH----------------------------
-        var debugSettings = new ConsentDebugSettings
-        {
-            DebugGeography = DebugGeography.EEA // simulate EU user
-        };
-
-        ConsentRequestParameters request = new ConsentRequestParameters
-        {
-            ConsentDebugSettings = debugSettings
-        };
+        ConsentRequestParameters request = new ConsentRequestParameters();
 
         ConsentInformation.Update(request, (FormError error) =>
         {

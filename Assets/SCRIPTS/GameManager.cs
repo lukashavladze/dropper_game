@@ -79,14 +79,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            ResetEverythingForTesting();
-        }
+    //void Update()
+    //{
+    //    if (Keyboard.current.spaceKey.wasPressedThisFrame)
+    //    {
+    //        ResetEverythingForTesting();
+    //    }
         
-    }
+    //}
 
 
     void ResetCombo()
@@ -463,39 +463,39 @@ public class GameManager : MonoBehaviour
     }
 
     // need to DELETE AFTER DEVELOPMENT IS DONE
-    public void ResetEverythingForTesting()
-    {
-        Debug.Log("🧹 FULL RESET TRIGGERED");
+    //public void ResetEverythingForTesting()
+    //{
+    //    Debug.Log("🧹 FULL RESET TRIGGERED");
 
-        level = 1;
-        score = 0;
-        placedSinceLevel = 0;
+    //    level = 1;
+    //    score = 0;
+    //    placedSinceLevel = 0;
 
-        // clear local saves
-        PlayerPrefs.DeleteKey("PLAYER_LEVEL");
-        PlayerPrefs.DeleteKey("BEST_SCORE");
-        PlayerPrefs.DeleteKey("PLAYER_NAME"); 
-        PlayerPrefs.DeleteKey("USER_ID");    
-        PlayerPrefs.Save();
+    //    // clear local saves
+    //    PlayerPrefs.DeleteKey("PLAYER_LEVEL");
+    //    PlayerPrefs.DeleteKey("BEST_SCORE");
+    //    PlayerPrefs.DeleteKey("PLAYER_NAME"); 
+    //    PlayerPrefs.DeleteKey("USER_ID");    
+    //    PlayerPrefs.Save();
 
-        ResetCombo();
+    //    ResetCombo();
 
-        uiManager.UpdateLevel(level);
-        uiManager.UpdateScore(score);
+    //    uiManager.UpdateLevel(level);
+    //    uiManager.UpdateScore(score);
 
-        if (LeaderboardManager.Instance != null)
-        {
-            LeaderboardManager.Instance.ClearLeaderboardForTesting();
-        }
+    //    if (LeaderboardManager.Instance != null)
+    //    {
+    //        LeaderboardManager.Instance.ClearLeaderboardForTesting();
+    //    }
 
-        var leaderboard = FindFirstObjectByType<LeaderboardUI>();
-        if (leaderboard != null)
-        {
-            leaderboard.Show(); // 🔥 forces username check again
-        }
+    //    var leaderboard = FindFirstObjectByType<LeaderboardUI>();
+    //    if (leaderboard != null)
+    //    {
+    //        leaderboard.Show(); // 🔥 forces username check again
+    //    }
 
-        Debug.Log("✅ Everything reset");
-    }
+    //    Debug.Log("✅ Everything reset");
+    //}
 
     public float GetLevelProgress01()
     {
