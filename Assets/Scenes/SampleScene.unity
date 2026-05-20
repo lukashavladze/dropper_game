@@ -915,7 +915,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1136266502064347141, guid: eecd894cbe407724e8907a9d44e5b8cf, type: 3}
+  m_Sprite: {fileID: -693539507640297913, guid: 2c047e9cc76de364481cc93de96d38f7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -21795,12 +21795,8 @@ MonoBehaviour:
   restartButton: {fileID: 1486158242}
   gameOverPanel: {fileID: 356303860}
   perfectText: {fileID: 207784344}
-  LevelUpPanel: {fileID: 0}
-  planetText: {fileID: 0}
   scoreCountText: {fileID: 1405413422}
   bestScoreCountText: {fileID: 643530153}
-  progressFill: {fileID: 0}
-  progressText: {fileID: 0}
   comboText: {fileID: 1995095088}
   comboCanvas: {fileID: 1995095090}
 --- !u!4 &1069174848

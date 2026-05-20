@@ -62,6 +62,11 @@ public class LoadingScreen : MonoBehaviour
             yield return null;
         }
 
+        while (!FirebaseInit.IsReady)
+        {
+            yield return null;
+        }
+
 
         StartCoroutine(LoadAsync());
     }
