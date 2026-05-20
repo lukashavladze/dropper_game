@@ -23,16 +23,16 @@ public class LeaderboardManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        StartCoroutine(Init());
+        //StartCoroutine(Init());
     }
 
-    IEnumerator Init()
-    {
-        while (!FirebaseInit.IsReady)
-            yield return null;
+    //IEnumerator Init()
+    //{
+    //    while (!FirebaseInit.IsReady)
+    //        yield return null;
 
-        db = FirebaseInit.DB.RootReference;
-    }
+    //    db = FirebaseInit.DB.RootReference;
+    //}
 
     private string GetUserId()
     {
