@@ -26,4 +26,13 @@ public class UsernamePanel : MonoBehaviour
         // 🔥 refresh leaderboard immediately
         //leaderboardUI.RefreshManually();
     }
+
+    public void OpenChangeUsername()
+    {
+        panel.SetActive(true);
+
+        inputField.text = PlayerProfile.GetName();
+
+        inputField.ActivateInputField();
+    }
 }
