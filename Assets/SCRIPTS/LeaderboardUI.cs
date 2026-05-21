@@ -30,12 +30,23 @@ public class LeaderboardUI : MonoBehaviour
         }
         else
         {
-            Load();
+            StartCoroutine(DelayedLoad());
         }
     }
 
     void Refresh()
     {
+        Load();
+    }
+
+    IEnumerator DelayedLoad()
+    {
+        while (LeaderboardManager.Instance == null)
+            yield return null;
+
+        while (!FirebaseInit.IsReady)
+            yield return null;
+
         Load();
     }
 

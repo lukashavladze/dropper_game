@@ -201,7 +201,7 @@ public class StackManager : MonoBehaviour
         {
             float newWidth = NextStoneWidth;
 
-            if (GameManager.Instance != null && GameManager.Instance.GetCombo() >= 5)
+            if (GameManager.Instance != null && GameManager.Instance.GetCombo() >= 3)
             {
                 newWidth = Mathf.Clamp(NextStoneWidth + fixedWiden, minStoneWidth, originalStoneWidth);
             }

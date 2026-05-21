@@ -167,7 +167,7 @@ public class GameManager : MonoBehaviour
             uiManager.UpdateBestScoreGameover(best);
         }
 
-        LeaderboardManager.Instance.SaveScore(score);
+        LeaderboardManager.Instance.SaveScore(score);  
 
         uiManager.ShowGameOver();
 
@@ -291,7 +291,7 @@ public class GameManager : MonoBehaviour
         }
 
         // 🔥 GAMEPLAY BONUS
-        if (comboCount >= 5)
+        if (comboCount >= 3)
             StackManager.Instance.ImprovePrecision();
 
         HandleBlockPlaced();
@@ -308,7 +308,7 @@ public class GameManager : MonoBehaviour
     {
         blocksSinceSpeedIncrease++;
 
-        if (blocksSinceSpeedIncrease >= 3)
+        if (blocksSinceSpeedIncrease >= 4)
         {
             blocksSinceSpeedIncrease = 0;
 

@@ -7,10 +7,10 @@ public class DropperController : MonoBehaviour
 {
     public GameObject stonePrefab;
     public Transform spawnPoint;
-    public float leftX = -5f, rightX = 5f;
+    public float leftX = -1.5f, rightX = 1.5f;
     public float baseSpeed = 2f;
     public float speedIncreasePerLevel = 0.3f;
-    public float maxSpeed = 9f;
+    public float maxSpeed = 6f;
 
     public float CurrentSpeed => moveSpeed;
 
@@ -67,7 +67,7 @@ public class DropperController : MonoBehaviour
 
     public void IncreaseSpeedSmall()
     {
-        baseSpeed += 0.15f;
+        baseSpeed += 0.10f;
         // 🔥 Clamp speed so it never exceeds maxSpeed
         baseSpeed = Mathf.Min(baseSpeed, maxSpeed);
         moveSpeed = baseSpeed;

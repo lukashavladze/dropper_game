@@ -55,6 +55,11 @@ public class LeaderboardManager : MonoBehaviour
             return;
         }
 
+        if (score <= 0)
+        {
+            return;
+        }
+
         string userId = GetUserId();
         string name = PlayerProfile.GetName();
 
@@ -78,7 +83,15 @@ public class LeaderboardManager : MonoBehaviour
 
             if (task.Result.Exists)
             {
-                int oldScore = int.Parse(task.Result.Child("score").Value.ToString());
+                int oldScore = 0;
+
+                if (task.Result.Child("score").Exists)
+                {
+                    int.TryParse(
+                        task.Result.Child("score").Value.ToString(),
+                        out oldScore
+                    );
+                }
 
                 if (score > oldScore)
                 {
@@ -102,23 +115,17 @@ public class LeaderboardManager : MonoBehaviour
 
         string userId = GetUserId();
 
-        db.Child("leaderboard").Child(userId).GetValueAsync()
-        .ContinueWithOnMainThread(task =>
-        {
-            if (task.Result.Exists)
-            {
-                // update only name
-                db.Child("leaderboard").Child(userId).Child("name")
-                .SetValueAsync(newName);
-            }
-            else
-            {
-                // 🔥 create entry if missing
-                WriteScore(userId, newName, 0);
-            }
-
-            OnScoreSaved?.Invoke();
-        });
+        db.Child("leaderboard")
+          .Child(userId)
+          .Child("name")
+          .SetValueAsync(newName)
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsCompleted)
+              {
+                  OnScoreSaved?.Invoke();
+              }
+          });
     }
 
     public void ClearLeaderboardForTesting()
@@ -173,7 +180,15 @@ public class LeaderboardManager : MonoBehaviour
               foreach (var child in task.Result.Children)
               {
                   string name = child.Child("name").Value?.ToString() ?? "Unknown";
-                  int score = int.Parse(child.Child("score").Value.ToString());
+                  int score = 0;
+
+                  if (child.Child("score").Exists)
+                  {
+                      int.TryParse(
+                          child.Child("score").Value.ToString(),
+                          out score
+                      );
+                  }
 
                   list.Add(new LeaderEntry(name, score));
               }
