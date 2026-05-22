@@ -32,8 +32,6 @@ public class LeaderboardManager : MonoBehaviour
             yield return null;
 
         db = FirebaseInit.DB.RootReference;
-
-        Debug.Log("Leaderboard DB READY");
     }
 
     private string GetUserId()
@@ -208,7 +206,7 @@ public class LeaderboardManager : MonoBehaviour
             if (task.IsCompleted)
             {
 
-                // 🔥 Notify UI AFTER save completes
+                //  Notify UI AFTER save completes
                 OnScoreSaved?.Invoke();
             }
         });

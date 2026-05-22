@@ -71,7 +71,7 @@ public class UnityAdsManager : MonoBehaviour,
 
     public void OnUnityAdsAdLoaded(string placementId)
     {
-        Debug.Log("Ad Loaded: " + placementId);
+        //Debug.Log("Ad Loaded: " + placementId);
     }
 
     public void OnUnityAdsFailedToLoad(string placementId, UnityAdsLoadError error, string message)

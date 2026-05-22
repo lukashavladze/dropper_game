@@ -13,7 +13,7 @@ public class ScorePopup : MonoBehaviour
 
     void Start()
     {
-        // 🔀 random direction (feels natural)
+        // random direction (feels natural)
         float randomX = Random.Range(-0.7f, -0.3f);
         float randomY = Random.Range(0.8f, 1.2f);
         moveDir = new Vector3(randomX, randomY, 0f).normalized;
@@ -48,7 +48,7 @@ public class ScorePopup : MonoBehaviour
 
         text.text = "+" + amount;
 
-        // 🎨 COLOR
+        //  COLOR
         if (amount <= 1)
             text.color = Color.white;
         else if (amount < 20)
@@ -58,7 +58,7 @@ public class ScorePopup : MonoBehaviour
         else
             text.color = Color.red;
 
-        // 📏 SCALE
+        //  SCALE
         float scale = Mathf.Clamp(1f + (amount * 0.05f), 1f, 1.8f);
         targetScale = Vector3.one * scale;
 

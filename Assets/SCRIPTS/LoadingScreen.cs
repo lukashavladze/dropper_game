@@ -34,7 +34,7 @@ public class LoadingScreen : MonoBehaviour
 
             if (op.progress >= 0.9f)
             {
-                // Optional: fake delay to show animation
+                //  fake delay to show animation
                 yield return new WaitForSeconds(0.5f);
                 op.allowSceneActivation = true;
             }
@@ -49,14 +49,14 @@ public class LoadingScreen : MonoBehaviour
         while (AgeGateManager.Instance == null)
             yield return null;
 
-        // 🚨 FIRST TIME → WAIT FOR USER INPUT
+        //  FIRST TIME → WAIT FOR USER INPUT
         if (!AgeGateManager.Instance.IsAgeSelected)
         {
             while (!AgeGateManager.Instance.IsAgeSelected)
                 yield return null;
         }
 
-        // 🚨 WAIT FOR CONSENT FLOW TO FINISH
+        //  WAIT FOR CONSENT FLOW TO FINISH
         while (ConsentManager.Instance == null || !ConsentManager.Instance.IsConsentDone)
         {
             yield return null;

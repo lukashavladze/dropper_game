@@ -23,7 +23,7 @@ public class UsernamePanel : MonoBehaviour
         // hide panel
         panel.SetActive(false);
 
-        // 🔥 refresh leaderboard immediately
+        //  refresh leaderboard immediately
         //leaderboardUI.RefreshManually();
     }
 

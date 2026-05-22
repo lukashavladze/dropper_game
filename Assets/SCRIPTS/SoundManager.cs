@@ -1,11 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
 
-    public Button soundButton;
+    [Header("UI")]
+    public TextMeshProUGUI soundText;
 
     private bool soundEnabled = true;
 
@@ -32,5 +33,14 @@ public class SoundManager : MonoBehaviour
     void ApplySound()
     {
         AudioListener.volume = soundEnabled ? 1f : 0f;
+
+        // UPDATE TEXT
+        if (soundText != null)
+        {
+            soundText.text =
+                soundEnabled
+                ? "Sounds ON"
+                : "Sounds OFF";
+        }
     }
 }

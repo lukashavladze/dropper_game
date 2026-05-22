@@ -16,7 +16,7 @@ public class ConsentManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 🔥 ADD
+            DontDestroyOnLoad(gameObject); 
         }
         else
         {
@@ -55,7 +55,7 @@ public class ConsentManager : MonoBehaviour
             }
             else
             {
-                EvaluateConsent(); // IMPORTANT
+                EvaluateConsent(); 
             }
         });
     }
@@ -106,7 +106,7 @@ public class ConsentManager : MonoBehaviour
             return;
         }
 
-        // ✅ Adult → use consent result
+        //  Adult → use consent result
         var status = ConsentInformation.ConsentStatus;
 
         switch (status)

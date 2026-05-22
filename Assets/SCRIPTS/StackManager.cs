@@ -26,7 +26,7 @@ public class StackManager : MonoBehaviour
     public float gameOverVerticalMargin = 0.02f;
 
     public float NextStoneWidth { get; private set; }
-    public float normalThreshold = 0.25f; // tweak this
+    public float normalThreshold = 0.25f; 
 
     void Awake()
     {
@@ -111,7 +111,7 @@ public class StackManager : MonoBehaviour
     public void ImprovePrecision()
     {
         float old = perfectThreshold;
-        perfectThreshold = Mathf.Min(0.15f, perfectThreshold + 0.01f); // cap max
+        perfectThreshold = Mathf.Min(0.15f, perfectThreshold + 0.01f); 
     }
 
     private IEnumerator CheckPlacementNextFrame(GameObject stone)
@@ -215,7 +215,7 @@ public class StackManager : MonoBehaviour
         }
         else if (isNormal)
         {
-            // 🔥 NO WIDTH CHANGE
+            //  NO WIDTH CHANGE
             ApplyWidthToStone(stone, NextStoneWidth);
             ApplyWidthToStone(top, NextStoneWidth);
 

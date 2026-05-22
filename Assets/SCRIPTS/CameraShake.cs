@@ -25,7 +25,7 @@ public class CameraShake : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 🔥 re-find CameraFollow in new scene
+        //  re-find CameraFollow in new scene
         follow = FindFirstObjectByType<CameraFollow>();
     }
 
@@ -66,7 +66,7 @@ public class CameraShake : MonoBehaviour
             yield return null;
         }
 
-        // 🔥 HARD RESET (important)
+        //  HARD RESET (important)
         follow.shakeOffset = Vector3.zero;
     }
 }

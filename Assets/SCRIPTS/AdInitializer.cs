@@ -29,7 +29,7 @@ public class AdInitializer : MonoBehaviour
 
         RequestConfiguration config;
 
-        // 👶 CHILD (UNDER 13)
+        //  CHILD (UNDER 13)
         if (isChild)
         {
 
@@ -40,7 +40,7 @@ public class AdInitializer : MonoBehaviour
                 MaxAdContentRating = MaxAdContentRating.G
             };
         }
-        // 🧑 ADULT + PERSONALIZED
+        //  ADULT + PERSONALIZED
         else if (personalized)
         {
             config = new RequestConfiguration
@@ -50,12 +50,12 @@ public class AdInitializer : MonoBehaviour
                 MaxAdContentRating = MaxAdContentRating.T
             };
         }
-        // 🛡 ADULT + NON-PERSONALIZED
+        //  ADULT + NON-PERSONALIZED
         else
         {
             config = new RequestConfiguration
             {
-                TagForChildDirectedTreatment = TagForChildDirectedTreatment.False, // ❗ important
+                TagForChildDirectedTreatment = TagForChildDirectedTreatment.False, 
                 TagForUnderAgeOfConsent = TagForUnderAgeOfConsent.True,
                 MaxAdContentRating = MaxAdContentRating.T
             };
@@ -67,7 +67,7 @@ public class AdInitializer : MonoBehaviour
         }
         else
         {
-            Debug.LogError("❌ AdMobManager not found in scene!");
+            Debug.LogError("AdMobManager not found in scene!");
         }
     }
 }

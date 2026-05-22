@@ -9,7 +9,7 @@ public class CameraFollow : MonoBehaviour
     [HideInInspector]
     public Vector3 shakeOffset;
 
-    private Vector3 basePosition; // 🔥 stable position
+    private Vector3 basePosition; //  stable position
 
     void LateUpdate()
     {
@@ -21,9 +21,9 @@ public class CameraFollow : MonoBehaviour
                 return;
         }
 
-        // 🎯 Calculate PERFECT base position (no shake)
+        //  Calculate PERFECT base position (no shake)
         Vector3 desiredPos = new Vector3(
-            0f, // 🔥 LOCK X to center (VERY IMPORTANT for your issue)
+            0f, 
             target.position.y + offset.y,
             transform.position.z
         );
@@ -35,7 +35,7 @@ public class CameraFollow : MonoBehaviour
             smoothSpeed * Time.deltaTime
         );
 
-        // 🎯 FINAL POSITION = base + shake
+        //  FINAL POSITION = base + shake
         transform.position = basePosition + shakeOffset;
     }
 }

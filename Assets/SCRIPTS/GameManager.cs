@@ -39,9 +39,13 @@ public class GameManager : MonoBehaviour
     private int blocksSinceSpeedIncrease = 0;
     
 
-    // 🔥 COMBO SYSTEM
+    //  COMBO SYSTEM
     private int comboCount = 1;
     private int normalStreak = 0;
+
+    [Header("Continue System")]
+    public int maxContinues = 3;
+    private int continuesUsed = 0;
 
     void Awake()
     {
@@ -79,16 +83,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //void Update()
-    //{
-    //    if (Keyboard.current.spaceKey.wasPressedThisFrame)
-    //    {
-    //        ResetEverythingForTesting();
-    //    }
-        
-    //}
-
-
     void ResetCombo()
     {
         comboCount = 1;
@@ -114,6 +108,21 @@ public class GameManager : MonoBehaviour
         return Color.Lerp(Color.yellow, Color.red, (t - 0.75f) / 0.25f);
     }
 
+    public bool CanContinue()
+    {
+        return continuesUsed < maxContinues;
+    }
+
+    public int GetRemainingContinues()
+    {
+        return maxContinues - continuesUsed;
+    }
+
+    public int GetMaxContinues()
+    {
+        return maxContinues;
+    }
+
     int GetComboMultiplier()
     {
         return Mathf.Clamp(comboCount, 1, 10); // cap at x10
@@ -135,7 +144,6 @@ public class GameManager : MonoBehaviour
         if (comboSounds == null || comboSounds.Length == 0)
             return;
 
-        // comboCount starts at 1
         int index = Mathf.Clamp(comboCount - 1, 0, comboSounds.Length - 1);
 
         AudioClip clip = comboSounds[index];
@@ -158,12 +166,10 @@ public class GameManager : MonoBehaviour
         {
             PlayerPrefs.SetInt("BEST_SCORE", score);
             PlayerPrefs.Save();
-            // 🔥 NEW BEST
             uiManager.UpdateBestScoreGameover(score);
         }
         else
         {
-            // existing best
             uiManager.UpdateBestScoreGameover(best);
         }
 
@@ -181,7 +187,7 @@ public class GameManager : MonoBehaviour
         if (scorePopupPrefab == null) return;
         if (isGameOver) return;
 
-        // 🔥 LEFT SIDE SPAWN
+        //  LEFT SIDE SPAWN
         Vector3 spawnPos = pos + new Vector3(-0.6f, 0.3f, -1f);
 
         GameObject go = Instantiate(scorePopupPrefab, spawnPos, Quaternion.identity);
@@ -193,7 +199,7 @@ public class GameManager : MonoBehaviour
 
     public void OnPlacedSuccessful(int placedCount, GameObject stone)
     {
-        // ❗ RESET COMBO
+        // RESET COMBO
         ResetCombo();
         normalStreak = 0;
         if (placedCount > 1)
@@ -256,9 +262,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(PerfectBounce(stone.transform));
         MoveDropperUp(stone);
 
-        // =========================
         // PERFECT IMPACT FX (COLOR MATCHED)
-        // =========================
         if (perfectFlashPrefab != null)
         {
             var sr = stone.GetComponent<SpriteRenderer>();
@@ -290,7 +294,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 🔥 GAMEPLAY BONUS
         if (comboCount >= 3)
             StackManager.Instance.ImprovePrecision();
 
@@ -331,7 +334,7 @@ public class GameManager : MonoBehaviour
             normalStreak = 0;
         }
 
-        int baseScore = placedCount; // 👈 NEW scoring system
+        int baseScore = placedCount; 
 
         int multiplier = GetComboMultiplier();
         int finalScore = baseScore * multiplier;
@@ -350,9 +353,7 @@ public class GameManager : MonoBehaviour
         HandleBlockPlaced();
     }
 
-    // =========================
     // LEVEL SYSTEM
-    // =========================
 
     void HandleLevelProgression()
     {
@@ -372,11 +373,11 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
 
 
-            // 🔥 reset progress AFTER level up
+            //  reset progress AFTER level up
             uiManager.UpdateProgress(0f);
         }
 
-        // 🔥 ALWAYS update progress (this is the key fix)
+        //  ALWAYS update progress (this is the key fix)
         uiManager.UpdateProgress(GetLevelProgress01());
     }
 
@@ -388,9 +389,7 @@ public class GameManager : MonoBehaviour
         return 80 + (lvl - 2) * 30;
     }
 
-    // =========================
     // HELPERS
-    // =========================
 
     void MoveDropperUp(GameObject stone)
     {
@@ -428,12 +427,24 @@ public class GameManager : MonoBehaviour
     {
         if (!isGameOver) return;
 
+        // limit continues
+        if (!CanContinue())
+            return;
+
+        continuesUsed++;
+
+        UIManager.Instance.UpdateContinueText(
+            GetRemainingContinues(),
+            GetMaxContinues()
+        );
+
         isGameOver = false;
 
         foreach (var rb in Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None))
             rb.simulated = true;
 
         var stones = Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None);
+
         foreach (var rb in stones)
         {
             if (rb.gameObject.CompareTag("Stone") && rb.simulated)
@@ -443,7 +454,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        StackManager.Instance.ResetStackWidthToOriginal(); 
+        StackManager.Instance.ResetStackWidthToOriginal();
         DropperController.Instance.SpawnStone();
 
         uiManager.HideGameOver();
@@ -461,41 +472,6 @@ public class GameManager : MonoBehaviour
 
         return Color.white;
     }
-
-    // need to DELETE AFTER DEVELOPMENT IS DONE
-    //public void ResetEverythingForTesting()
-    //{
-    //    Debug.Log("🧹 FULL RESET TRIGGERED");
-
-    //    level = 1;
-    //    score = 0;
-    //    placedSinceLevel = 0;
-
-    //    // clear local saves
-    //    PlayerPrefs.DeleteKey("PLAYER_LEVEL");
-    //    PlayerPrefs.DeleteKey("BEST_SCORE");
-    //    PlayerPrefs.DeleteKey("PLAYER_NAME"); 
-    //    PlayerPrefs.DeleteKey("USER_ID");    
-    //    PlayerPrefs.Save();
-
-    //    ResetCombo();
-
-    //    uiManager.UpdateLevel(level);
-    //    uiManager.UpdateScore(score);
-
-    //    if (LeaderboardManager.Instance != null)
-    //    {
-    //        LeaderboardManager.Instance.ClearLeaderboardForTesting();
-    //    }
-
-    //    var leaderboard = FindFirstObjectByType<LeaderboardUI>();
-    //    if (leaderboard != null)
-    //    {
-    //        leaderboard.Show(); // 🔥 forces username check again
-    //    }
-
-    //    Debug.Log("✅ Everything reset");
-    //}
 
     public float GetLevelProgress01()
     {

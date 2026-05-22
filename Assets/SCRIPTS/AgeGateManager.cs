@@ -7,7 +7,7 @@ public class AgeGateManager : MonoBehaviour
     public bool IsChild { get; private set; } = false;
     public bool IsAgeSelected { get; private set; } = false;
 
-    public GameObject agePanel; // drag your panel here
+    public GameObject agePanel; 
 
     void Awake()
     {
@@ -36,7 +36,7 @@ public class AgeGateManager : MonoBehaviour
         else
         {
             if (agePanel != null)
-                agePanel.SetActive(true); // 🔥 SHOW UI
+                agePanel.SetActive(true); // SHOW UI
         }
     }
 
@@ -61,7 +61,7 @@ public class AgeGateManager : MonoBehaviour
 
         //gameObject.SetActive(false);
         if (agePanel != null)
-            agePanel.SetActive(false); // 🔥 HIDE UI
+            agePanel.SetActive(false); //  HIDE UI
 
         StartConsentFlow();
     }

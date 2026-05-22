@@ -20,7 +20,7 @@ public class AdManager : MonoBehaviour
 
     public void ShowRewarded(Action<bool> onResult)
     {
-        // 🔥 TRY ADMOB FIRST
+        // TRY ADMOB FIRST
         if (RewardedAdManager.Instance != null &&
             RewardedAdManager.Instance.IsReady())
         {
@@ -40,7 +40,7 @@ public class AdManager : MonoBehaviour
             return;
         }
 
-        // 🔥 FALLBACK
+        //  FALLBACK
         TryUnityAds(onResult);
     }
 

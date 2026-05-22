@@ -20,7 +20,7 @@ public class AdMobManager : MonoBehaviour
         }
     }
 
-    // 🔥 CALLED AFTER CONSENT
+    //  CALLED AFTER CONSENT
     public void InitializeAds(RequestConfiguration config)
     {
         if (IsInitialized)

@@ -39,12 +39,11 @@ public class BloomController : MonoBehaviour
         var volume = FindFirstObjectByType<Volume>();
 
         if (volume != null && volume.profile.TryGet(out bloom))
-        {
-            Debug.Log("✅ Bloom re-linked");
-        }
+        {}
         else
         {
             bloom = null;
+            Debug.LogWarning("Bloom not found in Volume Profile");
         }
     }
 
@@ -95,7 +94,7 @@ public class BloomController : MonoBehaviour
 
         float t = 0;
 
-        // 🔥 GO UP FAST
+        //  GO UP FAST
         while (t < 1f)
         {
             t += Time.deltaTime / upTime;
@@ -106,7 +105,7 @@ public class BloomController : MonoBehaviour
 
         t = 0;
 
-        // 🌫 GO DOWN SMOOTH
+        //  GO DOWN SMOOTH
         while (t < 1f)
         {
             t += Time.deltaTime / downTime;
@@ -137,7 +136,7 @@ public class BloomController : MonoBehaviour
     {
         if (bloom == null) yield break;
 
-        bloom.tint.overrideState = true; // 🔥 IMPORTANT
+        bloom.tint.overrideState = true; //  IMPORTANT
 
         float duration = 0.3f;
         float t = 0;

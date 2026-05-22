@@ -30,12 +30,18 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI comboText;
     public CanvasGroup comboCanvas;
 
+    [Header("Continue UI")]
+    public TextMeshProUGUI continueText;
+
+
+    public Button continueButton;
 
 
     void Start()
     {
         UpdateBest();
         HideGameOver();
+        UpdateContinueText(GameManager.Instance.GetRemainingContinues(), GameManager.Instance.GetMaxContinues());
     }
 
     void Awake()
@@ -94,6 +100,13 @@ public class UIManager : MonoBehaviour
                 yield return null;
             }
         }
+    }
+
+    public void UpdateContinueText(int remaining, int max)
+    {
+        if (continueText == null) return;
+
+        continueText.text = remaining + "/" + max;
     }
 
 
@@ -223,7 +236,9 @@ public class UIManager : MonoBehaviour
 
     public void ShowGameOver()
     {
+
         gameOverPanel.SetActive(true);
+        continueButton.interactable = GameManager.Instance.CanContinue();
     }
     public void HideGameOver()
     {

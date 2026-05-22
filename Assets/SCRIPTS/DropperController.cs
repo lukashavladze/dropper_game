@@ -68,10 +68,8 @@ public class DropperController : MonoBehaviour
     public void IncreaseSpeedSmall()
     {
         baseSpeed += 0.10f;
-        // 🔥 Clamp speed so it never exceeds maxSpeed
         baseSpeed = Mathf.Min(baseSpeed, maxSpeed);
         moveSpeed = baseSpeed;
-        Debug.Log($"🚀 SPEED INCREASE → baseSpeed={baseSpeed}, moveSpeed={moveSpeed}");
     }
 
     void Move()
@@ -90,7 +88,7 @@ public class DropperController : MonoBehaviour
 
                     currentStone.transform.position = new Vector3(
                         spawnPoint.position.x,
-                        spawnPoint.position.y - halfHeight, // 🔥 align top
+                        spawnPoint.position.y - halfHeight, // align top
                         spawnPoint.position.z
                     );
                 }
@@ -99,7 +97,6 @@ public class DropperController : MonoBehaviour
 
     public void SpawnStone()
     {
-        // Safety: don't spawn if there is an active stone already
         if (currentStone != null) return;
 
         currentStone = Instantiate(stonePrefab, spawnPoint.position, Quaternion.identity);
@@ -112,7 +109,6 @@ public class DropperController : MonoBehaviour
             int index = Random.Range(0, stoneSprites.Length);
             sr2.sprite = stoneSprites[index];
 
-            // 🔥 store color for later (VERY IMPORTANT)
             currentStoneSkin = stoneSprites[index];
         }
 
@@ -157,7 +153,7 @@ public class DropperController : MonoBehaviour
     {
         if (!currentStone) return;
 
-        GameObject fallingStone = currentStone; // keep reference
+        GameObject fallingStone = currentStone; 
 
         var rb = fallingStone.GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = true;
@@ -166,29 +162,19 @@ public class DropperController : MonoBehaviour
 
         GameManager.Instance?.OnDrop();
 
-        // Register watcher that will call immediate game-over if it falls too low
         StartCoroutine(StackManager.Instance.CheckMissWhileFalling(fallingStone));
-
-        // Clear the current stone so SpawnNextAfterDelay can create next
         currentStone = null;
 
-        // Ensure next stone will appear after a short delay
-        //StartCoroutine(SpawnNextAfterDelay(0.8f));
     }
 
     private void OnStonePlaced(GameObject stone)
     {
-        // Reset rotation to perfectly straight (no tilt)
         stone.transform.rotation = Quaternion.identity;
-
-        // Continue with your existing logic
         StackManager.Instance.RegisterPlacedStone(stone);
-
         var fo = stone.GetComponent<FallingObject>();
         if (fo != null) fo.OnPlaced -= OnStonePlaced;
     }
 
-    // SKIN API
     public void SetStoneSkin(Sprite newSkin)
     {
         currentStoneSkin = newSkin;

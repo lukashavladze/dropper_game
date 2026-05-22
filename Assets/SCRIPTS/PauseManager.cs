@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // for exit
+using UnityEngine.SceneManagement; 
 using UnityEngine.UI;
 
 public class PauseManager : MonoBehaviour
 {
-    public GameObject pauseMenuPanel;   // assign in inspector
+    public GameObject pauseMenuPanel;   
     public Button pauseButton;
     public Button resumeButton;
     public Button exitButton;
@@ -19,18 +19,6 @@ public class PauseManager : MonoBehaviour
         IsPaused = false;
     }
 
-    //void Start()
-    //{
-    //    if (pauseButton != null) pauseButton.onClick.AddListener(TogglePause);
-    //    if (resumeButton != null) resumeButton.onClick.AddListener(ResumeGame);
-    //    if (exitButton != null) exitButton.onClick.AddListener(ExitGame);
-
-    //    if (pauseMenuPanel != null)
-    //        pauseMenuPanel.SetActive(false);
-
-    //    Time.timeScale = 1f; // ensure unpaused start
-    //    IsPaused = false;
-    //}
 
     void Awake()
     {
@@ -57,7 +45,7 @@ public class PauseManager : MonoBehaviour
     public void PauseGame()
     {
         IsPaused = true;
-        Time.timeScale = 0f; // ⏸️ stops physics & animations
+        Time.timeScale = 0f; 
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
         if (pauseButton != null) pauseButton.gameObject.SetActive(false);
     }
