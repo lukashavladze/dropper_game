@@ -180,6 +180,31 @@ public class GameManager : MonoBehaviour
 
         uiManager.ShowGameOver();
 
+        // REVIEW POPUP
+        if (score >= 100)
+        {
+            int reviewShownCount =
+                PlayerPrefs.GetInt("REVIEW_SHOWN_COUNT", 0);
+
+            bool alreadyRated =
+                PlayerPrefs.GetInt("PLAYER_RATED", 0) == 1;
+
+            // show max 2 times
+            if (!alreadyRated && reviewShownCount < 2)
+            {
+                reviewShownCount++;
+
+                PlayerPrefs.SetInt(
+                    "REVIEW_SHOWN_COUNT",
+                    reviewShownCount
+                );
+
+                PlayerPrefs.Save();
+
+                InAppReviewManager.Instance.RequestReview();
+            }
+        }
+
         foreach (var rb in Object.FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None))
             rb.simulated = false;
     }
