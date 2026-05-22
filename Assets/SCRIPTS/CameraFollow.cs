@@ -15,27 +15,29 @@ public class CameraFollow : MonoBehaviour
     {
         if (target == null)
         {
-            if (GameManager.Instance != null && GameManager.Instance.dropperTransform != null)
+            if (GameManager.Instance != null &&
+                GameManager.Instance.dropperTransform != null)
+            {
                 target = GameManager.Instance.dropperTransform;
+            }
             else
+            {
                 return;
+            }
         }
 
-        //  Calculate PERFECT base position (no shake)
         Vector3 desiredPos = new Vector3(
-            0f, 
+            0f,
             target.position.y + offset.y,
             transform.position.z
         );
 
-        // smooth follow ONLY base position
         basePosition = Vector3.Lerp(
             basePosition == Vector3.zero ? desiredPos : basePosition,
             desiredPos,
             smoothSpeed * Time.deltaTime
         );
 
-        //  FINAL POSITION = base + shake
         transform.position = basePosition + shakeOffset;
     }
 }

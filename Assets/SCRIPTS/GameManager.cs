@@ -37,7 +37,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject perfectFlashPrefab;
 
     private int blocksSinceSpeedIncrease = 0;
-    
+
+    [SerializeField] 
+    private float desiredGap = 7f;
+
 
     //  COMBO SYSTEM
     private int comboCount = 1;
@@ -393,11 +396,19 @@ public class GameManager : MonoBehaviour
 
     void MoveDropperUp(GameObject stone)
     {
+        GameObject lastStone = StackManager.Instance.GetLastStone();
+
+        if (lastStone == null)
+            return;
+
         var sr = stone.GetComponent<SpriteRenderer>();
+
         float h = sr != null ? sr.bounds.size.y : 1f;
 
         Vector3 pos = dropperTransform.position;
-        pos.y += h;
+
+        pos.y = lastStone.transform.position.y + desiredGap;
+
         dropperTransform.position = pos;
     }
 

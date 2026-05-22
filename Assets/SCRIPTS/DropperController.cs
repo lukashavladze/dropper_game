@@ -10,7 +10,7 @@ public class DropperController : MonoBehaviour
     public float leftX = -1.5f, rightX = 1.5f;
     public float baseSpeed = 2f;
     public float speedIncreasePerLevel = 0.3f;
-    public float maxSpeed = 6f;
+    public float maxSpeed = 8f;
 
     public float CurrentSpeed => moveSpeed;
 
