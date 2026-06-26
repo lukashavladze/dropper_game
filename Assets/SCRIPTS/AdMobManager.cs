@@ -34,6 +34,7 @@ public class AdMobManager : MonoBehaviour
 
             // Load first ad
             RewardedAdManager.Instance?.LoadAd();
+            InterstitialAdManager.Instance?.LoadAd();
         });
     }
 }

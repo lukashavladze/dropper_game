@@ -263,7 +263,10 @@ public class UIManager : MonoBehaviour
 
     public void OnRestartButton()
     {
+        AdManager.Instance.ShowInterstitial(() =>
+    {
         GameManager.Instance.Restart();
+    });
     }
 
     public void OnContinueButton()

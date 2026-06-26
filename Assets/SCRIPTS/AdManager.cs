@@ -44,6 +44,19 @@ public class AdManager : MonoBehaviour
         TryUnityAds(onResult);
     }
 
+    public void ShowInterstitial(Action onClosed = null)
+    {
+        if (InterstitialAdManager.Instance != null &&
+            InterstitialAdManager.Instance.IsReady())
+        {
+            InterstitialAdManager.Instance.Show(onClosed);
+        }
+        else
+        {
+            onClosed?.Invoke();
+        }
+    }
+
     void TryUnityAds(Action<bool> onResult)
     {
 

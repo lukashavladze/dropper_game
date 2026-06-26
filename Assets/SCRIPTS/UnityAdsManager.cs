@@ -27,10 +27,10 @@ public class UnityAdsManager : MonoBehaviour,
 
 #if UNITY_ANDROID
             rewardedAdUnitId = androidRewardedId;
-            Advertisement.Initialize(androidGameId, true, this);
+            Advertisement.Initialize(androidGameId, false, this);
 #elif UNITY_IOS
             rewardedAdUnitId = iosRewardedId;
-            Advertisement.Initialize(iosGameId, true, this);
+            Advertisement.Initialize(iosGameId, false, this);
 #endif
         }
         else

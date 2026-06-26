@@ -7,10 +7,10 @@ public class RewardedAdManager : MonoBehaviour
     public static RewardedAdManager Instance;
 
     private RewardedAd rewardedAd;
-    private string adUnitId = "ca-app-pub-3940256099942544/5224354917"; // test
+    //private string adUnitId = "ca-app-pub-3940256099942544/5224354917"; // test
 
-    //private string aDUnitId = "ca-app-pub-9219903637701882/422604285"      // this is real ID
-
+    private string adUnitId = "ca-app-pub-9219903637701882/4226042851";      // this is real ID
+                               
 
 
     // ca-app-pub-9219903637701882~1324547345     << this needs to be added in unity
