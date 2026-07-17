@@ -20,32 +20,27 @@ public class AdManager : MonoBehaviour
 
     public void ShowRewarded(Action<bool> onResult)
     {
-        // TRY ADMOB FIRST
         if (RewardedAdManager.Instance != null &&
             RewardedAdManager.Instance.IsReady())
         {
-
-            RewardedAdManager.Instance.Show(success =>
-            {
-                if (success)
-                {
-                    onResult?.Invoke(true);
-                }
-                else
-                {
-                    TryUnityAds(onResult);
-                }
-            });
-
-            return;
+            RewardedAdManager.Instance.Show(onResult);
         }
-
-        //  FALLBACK
-        TryUnityAds(onResult);
+        else
+        {
+            onResult?.Invoke(false);
+        }
     }
 
     public void ShowInterstitial(Action onClosed = null)
     {
+        // Never show interstitials to child users
+        if (AgeGateManager.Instance != null &&
+            AgeGateManager.Instance.IsChild)
+        {
+            onClosed?.Invoke();
+            return;
+        }
+
         if (InterstitialAdManager.Instance != null &&
             InterstitialAdManager.Instance.IsReady())
         {
@@ -57,16 +52,16 @@ public class AdManager : MonoBehaviour
         }
     }
 
-    void TryUnityAds(Action<bool> onResult)
-    {
+    //void TryUnityAds(Action<bool> onResult)
+    //{
 
-        if (UnityAdsManager.Instance != null)
-        {
-            UnityAdsManager.Instance.ShowRewarded(onResult);
-        }
-        else
-        {
-            onResult?.Invoke(false);
-        }
-    }
+    //    if (UnityAdsManager.Instance != null)
+    //    {
+    //        UnityAdsManager.Instance.ShowRewarded(onResult);
+    //    }
+    //    else
+    //    {
+    //        onResult?.Invoke(false);
+    //    }
+    //}
 }

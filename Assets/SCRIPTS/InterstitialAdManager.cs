@@ -8,8 +8,7 @@ public class InterstitialAdManager : MonoBehaviour
 
     private InterstitialAd interstitial;
 
-    private string adUnitId = "ca-app-pub-9219903637701882/5648363750";    // real
-    //private string adUnitId = "ca-app-pub-9219903637701882/5648363750";  //test
+    private string adUnitId = "ca-app-pub-9219903637701882/5648363750";
 
     void Awake()
     {
@@ -34,23 +33,17 @@ public class InterstitialAdManager : MonoBehaviour
 
         AdRequest request = new AdRequest();
 
-        InterstitialAd.Load(adUnitId, request,
-        (InterstitialAd ad, LoadAdError error) =>
+        InterstitialAd.Load(adUnitId, request, (ad, error) =>
         {
             if (error != null || ad == null)
+            {
+                Debug.Log("Interstitial failed to load");
                 return;
+            }
+
+            Debug.Log("Interstitial loaded");
 
             interstitial = ad;
-
-            interstitial.OnAdFullScreenContentClosed += () =>
-            {
-                LoadAd();
-            };
-
-            interstitial.OnAdFullScreenContentFailed += (AdError err) =>
-            {
-                LoadAd();
-            };
         });
     }
 
@@ -68,22 +61,35 @@ public class InterstitialAdManager : MonoBehaviour
             return;
         }
 
-        interstitial.OnAdFullScreenContentClosed += () =>
+        InterstitialAd ad = interstitial;
+        interstitial = null;
+
+        bool handled = false;
+
+        void Finish()
         {
-            interstitial.Destroy();
-            interstitial = null;
+            if (handled)
+                return;
 
+            handled = true;
+
+            ad.Destroy();
             onClosed?.Invoke();
-
             LoadAd();
+        }
+
+        ad.OnAdFullScreenContentClosed += () =>
+        {
+            Debug.Log("Interstitial closed");
+            Finish();
         };
 
-        interstitial.OnAdFullScreenContentFailed += (AdError error) =>
+        ad.OnAdFullScreenContentFailed += (error) =>
         {
-            onClosed?.Invoke();
-            LoadAd();
+            Debug.Log($"Interstitial failed to show: {error}");
+            Finish();
         };
 
-        interstitial.Show();
+        ad.Show();
     }
 }
