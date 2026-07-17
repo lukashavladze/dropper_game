@@ -44,6 +44,7 @@ public class RewardedAdManager : MonoBehaviour
             }
 
             rewardedAd = ad;
+            UIManager.Instance?.UpdateContinueButton();
 
             rewardedAd.OnAdFullScreenContentClosed += () =>
             {

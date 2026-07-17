@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
 
 
     public Button continueButton;
-
+    [SerializeField] private GameObject noAdPanel;
 
     void Start()
     {
@@ -236,9 +236,8 @@ public class UIManager : MonoBehaviour
 
     public void ShowGameOver()
     {
-
         gameOverPanel.SetActive(true);
-        continueButton.interactable = GameManager.Instance.CanContinue();
+        UpdateContinueButton();
     }
     public void HideGameOver()
     {
@@ -260,6 +259,23 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ShowNoAdPopup()
+    {
+        if (noAdPanel == null)
+            return;
+
+        noAdPanel.SetActive(true);
+
+        CancelInvoke(nameof(HideNoAdPopup));
+        Invoke(nameof(HideNoAdPopup), 2f);
+    }
+
+    public void HideNoAdPopup()
+    {
+        if (noAdPanel != null)
+            noAdPanel.SetActive(false);
+    }
+
 
     public void OnRestartButton()
     {
@@ -267,6 +283,17 @@ public class UIManager : MonoBehaviour
     {
         GameManager.Instance.Restart();
     });
+    }
+
+    public void UpdateContinueButton()
+    {
+        if (continueButton == null)
+            return;
+
+        continueButton.interactable =
+            GameManager.Instance.CanContinue() &&
+            RewardedAdManager.Instance != null &&
+            RewardedAdManager.Instance.IsReady();
     }
 
     public void OnContinueButton()
@@ -285,7 +312,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Ad not available");
+                ShowNoAdPopup();
             }
         });
     }
