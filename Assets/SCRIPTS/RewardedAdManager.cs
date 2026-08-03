@@ -9,11 +9,19 @@ public class RewardedAdManager : MonoBehaviour
     private RewardedAd rewardedAd;
     //private string adUnitId = "ca-app-pub-3940256099942544/5224354917"; // test
 
-    private string adUnitId = "ca-app-pub-9219903637701882/4226042851";      // this is real ID
-                               
+#if UNITY_ANDROID
+    private const string adUnitId =
+        "ca-app-pub-9219903637701882/4226042851";
+#elif UNITY_IOS
+private const string adUnitId =
+    "ca-app-pub-9219903637701882/1479456369";
+#else
+private const string adUnitId =
+    "unused";
+#endif     // this is real ID
 
 
-    // ca-app-pub-9219903637701882~1324547345     << this needs to be added in unity
+   
     void Awake()
     {
         if (Instance == null)

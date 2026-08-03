@@ -8,7 +8,16 @@ public class InterstitialAdManager : MonoBehaviour
 
     private InterstitialAd interstitial;
 
-    private string adUnitId = "ca-app-pub-9219903637701882/5648363750";
+#if UNITY_ANDROID
+    private const string adUnitId =
+        "ca-app-pub-9219903637701882/5648363750";
+#elif UNITY_IOS
+private const string adUnitId =
+    "ca-app-pub-9219903637701882/2978692135";
+#else
+private const string adUnitId =
+    "unused";
+#endif
 
     void Awake()
     {

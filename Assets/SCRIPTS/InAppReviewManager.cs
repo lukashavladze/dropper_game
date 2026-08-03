@@ -1,15 +1,24 @@
+using UnityEngine;
+
+#if UNITY_ANDROID
 using System.Collections;
 using Google.Play.Review;
-using UnityEngine;
+#endif
+
+#if UNITY_IOS
+using UnityEngine.iOS;
+#endif
 
 public class InAppReviewManager : MonoBehaviour
 {
     public static InAppReviewManager Instance;
 
+#if UNITY_ANDROID
     private ReviewManager reviewManager;
     private PlayReviewInfo playReviewInfo;
+#endif
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -22,39 +31,40 @@ public class InAppReviewManager : MonoBehaviour
         }
     }
 
-
     public void RequestReview()
     {
-        StartCoroutine(RequestReviewFlow());
+#if UNITY_ANDROID
+        StartCoroutine(RequestAndroidReviewFlow());
+#elif UNITY_IOS
+        Device.RequestStoreReview();
+#else
+        Debug.Log("In-app review is unavailable on this platform.");
+#endif
     }
 
-    IEnumerator RequestReviewFlow()
+#if UNITY_ANDROID
+    private IEnumerator RequestAndroidReviewFlow()
     {
         reviewManager = new ReviewManager();
 
-        var requestFlowOperation = reviewManager.RequestReviewFlow();
+        var requestOperation =
+            reviewManager.RequestReviewFlow();
 
-        yield return requestFlowOperation;
+        yield return requestOperation;
 
-        if (requestFlowOperation.Error != ReviewErrorCode.NoError)
+        if (requestOperation.Error != ReviewErrorCode.NoError)
         {
             yield break;
         }
 
-        playReviewInfo = requestFlowOperation.GetResult();
+        playReviewInfo = requestOperation.GetResult();
 
-        var launchFlowOperation =
+        var launchOperation =
             reviewManager.LaunchReviewFlow(playReviewInfo);
 
-        yield return launchFlowOperation;
-
-        if (launchFlowOperation.Error == ReviewErrorCode.NoError)
-        {
-            // assume user interacted with review dialog
-            PlayerPrefs.SetInt("PLAYER_RATED", 1);
-            PlayerPrefs.Save();
-        }
+        yield return launchOperation;
 
         playReviewInfo = null;
     }
+#endif
 }
